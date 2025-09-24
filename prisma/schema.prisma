@@ -1,0 +1,249 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String           @id @default(cuid())
+  name           String
+  email          String
+  emailVerified  Boolean          @default(false)
+  image          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  Employee       Employee?
+  Appointment    Appointment[]
+  CashierClosing CashierClosing[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+model Employee {
+  id             String           @id @default(cuid())
+  userId         String?          @unique
+  user           User?            @relation(fields: [userId], references: [id])
+  name           String
+  email          String
+  appointments   Appointment[]
+  services       Service[]
+  commissions    Commission[]
+  commissionRate Float            @default(50.0)
+  specialties    String?
+  bio            String?
+  phoneNumber    String?
+  startDate      DateTime         @default(now())
+  status         String           @default("ACTIVE")
+  serviceHistory ServiceHistory[]
+  schedule       WorkSchedule[]
+  specialty      Specialty[]
+}
+
+model Service {
+  id             String           @id @default(cuid())
+  name           String
+  description    String
+  duration       Int // in minutes
+  price          Float
+  active         Boolean          @default(true)
+  employees      Employee[]
+  appointments   Appointment[]
+  serviceHistory ServiceHistory[]
+}
+
+model Appointment {
+  id             String          @id @default(cuid())
+  date           DateTime
+  status         String          @default("PENDING")
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  employeeId     String
+  employee       Employee        @relation(fields: [employeeId], references: [id])
+  serviceId      String
+  service        Service         @relation(fields: [serviceId], references: [id])
+  commission     Commission?
+  voucher        Voucher?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  notes          String?
+  serviceHistory ServiceHistory?
+}
+
+model Commission {
+  id            String      @id @default(cuid())
+  amount        Float
+  date          DateTime    @default(now())
+  employeeId    String
+  employee      Employee    @relation(fields: [employeeId], references: [id])
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+}
+
+model WorkSchedule {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int // 0-6 (Sunday-Saturday)
+  startTime  String // HH:mm format
+  endTime    String // HH:mm format
+  isWorking  Boolean  @default(true)
+
+  @@unique([employeeId, dayOfWeek])
+}
+
+model ServiceHistory {
+  id            String      @id @default(cuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  serviceId     String
+  service       Service     @relation(fields: [serviceId], references: [id])
+  employeeId    String
+  employee      Employee    @relation(fields: [employeeId], references: [id])
+  date          DateTime
+  price         Float
+  commission    Float
+  notes         String?
+  rating        Int? // 1-5 star rating
+  feedback      String? // Customer feedback
+  createdAt     DateTime    @default(now())
+}
+
+model PaymentMethod {
+  id          String    @id @default(cuid())
+  name        String
+  isActive    Boolean   @default(true)
+  description String?
+  payments    Payment[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Voucher {
+  id            String      @id @default(cuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  code          String      @unique
+  totalAmount   Float
+  status        String      @default("PENDING") // PENDING, PAID, CANCELLED
+  payment       Payment?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Payment {
+  id               String          @id @default(cuid())
+  voucherId        String?         @unique
+  voucher          Voucher?        @relation(fields: [voucherId], references: [id])
+  bill             Bill?
+  type             String          @default("INCOME")
+  status           String          @default("COMPLETED")
+  paymentMethodId  String
+  paymentMethod    PaymentMethod   @relation(fields: [paymentMethodId], references: [id])
+  amount           Float
+  paidAt           DateTime?
+  cashierClosingId String?
+  cashierClosing   CashierClosing? @relation(fields: [cashierClosingId], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Bill {
+  id          String       @id @default(cuid())
+  description String
+  amount      Float
+  dueDate     DateTime
+  status      String       @default("PENDING")
+  categoryId  String
+  category    BillCategory @relation(fields: [categoryId], references: [id])
+  supplier    String?
+  payment     Payment?     @relation(fields: [paymentId], references: [id])
+  paymentId   String?      @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model BillCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  bills       Bill[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CashierClosing {
+  id               String    @id @default(cuid())
+  date             DateTime  @unique
+  openingBalance   Float     @default(0)
+  closingBalance   Float
+  totalIncome      Float
+  totalExpenses    Float
+  totalCommissions Float
+  observations     String?
+  status           String    @default("OPEN")
+  closedBy         String
+  payments         Payment[]
+  user             User      @relation(fields: [closedBy], references: [id])
+}
+
+model Specialty {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  employees   Employee[]
+}
