@@ -1,27 +1,27 @@
+import { LoginForm } from "@/app/login/_components/login-form";
 import Link from "next/link";
-import { SignupForm } from "./_components/signup-form";
 
-export default function Signup() {
+export default function Login() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold">Cadastro</h1>
+          <h1 className="text-3xl font-bold">Login</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Crie sua conta para começar
+            Entre com suas credenciais para acessar sua conta
           </p>
         </div>
 
-        <SignupForm />
+        <LoginForm />
 
         <div className="text-center text-sm">
           <p>
-            Já tem uma conta?{" "}
+            Não tem uma conta?{" "}
             <Link
-              href="/login"
+              href="/signup"
               className="font-medium text-primary hover:underline"
             >
-              Faça login
+              Cadastre-se
             </Link>
           </p>
         </div>
