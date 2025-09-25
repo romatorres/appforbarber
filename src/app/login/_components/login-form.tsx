@@ -159,7 +159,7 @@ export function LoginForm() {
         <Button
           type="button"
           variant="outline"
-          className="w-full bg-[#9146FF] text-white hover:bg-[#7d3bdf] hover:text-white"
+          className="w-full"
           onClick={handleSignInGoogle}
         >
           <FaGoogle className="mr-2 h-4 w-4" />
