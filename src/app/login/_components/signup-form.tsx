@@ -226,14 +226,15 @@ export default function SignupForm({ onSwitchToLogin }: SignupFormProps) {
         </form>
       </Form>
       <div className="text-center text-sm">
-        <p>
-          Já tem uma conta?{" "}
-          <button
-            className="text-blue-500 hover:text-blue-700 font-semibold underline"
+        <p className="text-center text-gray-4 mt-6 text-sm">
+          Já tem uma conta?
+          <Button
+            className="text-primary hover:text-white font-semibold"
             onClick={onSwitchToLogin}
+            variant={"link"}
           >
             Faça o login
-          </button>
+          </Button>
         </p>
       </div>
     </div>

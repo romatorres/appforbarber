@@ -27,7 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${paytoneOne.variable} ${nunito.variable} antialiased`}>
+      <body
+        className={`${paytoneOne.variable} ${nunito.variable} font-nunito antialiased`}
+      >
         {children}
         <Toaster />
       </body>

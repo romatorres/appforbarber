@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { CircleUserRound, Eye, EyeOff, Loader2 } from "lucide-react";
-
+import { FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,8 +17,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FaGoogle } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
@@ -53,11 +53,12 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         password: formData.password,
       },
       {
-        onRequest: (ctx) => {
+        onRequest: () => {
           //show loading
         },
-        onSuccess: (ctx) => {
+        onSuccess: () => {
           router.replace("/dashboard");
+          toast("Login relaizado com sucesso!");
         },
         onError: (ctx) => {
           // display the error message
@@ -160,12 +161,12 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             )}
           </Button>
 
-          <div className="relative my-4">
+          <div className="relative my-4 mb-8">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
+              <span className="bg-background px-2 text-gray-4">
                 Ou continue com
               </span>
             </div>
@@ -178,19 +179,20 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             onClick={handleSignInGoogle}
           >
             <FaGoogle className="mr-2 h-4 w-4" />
-            Entrar com Twitch
+            Entrar com Gmail
           </Button>
         </form>
       </Form>
       <div>
-        <p className="text-center text-gray-3 mt-6 text-sm">
-          Não tem uma conta?{" "}
-          <button
-            className="text-blue-500 hover:text-blue-700 font-semibold underline"
+        <p className="text-center text-gray-4 mt-6 text-sm">
+          Não tem uma conta?
+          <Button
+            className="text-primary hover:text-white font-semibold"
             onClick={onSwitchToRegister}
+            variant={"link"}
           >
             Registre-se
-          </button>
+          </Button>
         </p>
       </div>
     </div>
