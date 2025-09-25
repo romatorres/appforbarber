@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { CircleUserRound, Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
 
 const signupSchema = z
   .object({
@@ -40,7 +39,11 @@ const signupSchema = z
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-export function SignupForm() {
+interface SignupFormProps {
+  onSwitchToLogin: () => void;
+}
+
+export default function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,15 +83,19 @@ export function SignupForm() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+    <div className="flex flex-col items-center justify-center">
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Cadastro</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h2 className="text-center text-2xl font-bold">Cadastro</h2>
+        <div className="flex flex-col justify-center items-center gap-4 py-10 text-xl font-semibold">
+          <CircleUserRound size={48} strokeWidth={1} color="#4E525B" />
           Crie sua conta para começar
-        </p>
+        </div>
       </div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 w-full"
+        >
           <FormField
             control={form.control}
             name="name"
@@ -221,12 +228,12 @@ export function SignupForm() {
       <div className="text-center text-sm">
         <p>
           Já tem uma conta?{" "}
-          <Link
-            href="/login"
-            className="font-medium text-primary hover:underline"
+          <button
+            className="text-blue-500 hover:text-blue-700 font-semibold underline"
+            onClick={onSwitchToLogin}
           >
-            Faça login
-          </Link>
+            Faça o login
+          </button>
         </p>
       </div>
     </div>
