@@ -11,7 +11,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-background opacity-50"></div>
       <div className="relative w-full max-w-screen-xl mx-auto md:px-12 px-6">
         <div className="flex flex-col md:flex-row md:justify-between items-center gap-8">
-          <div className="text-white font-paytone-one sm:text-start text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 md:mb-0 md:mr-4 flex-1">
+          <div className="text-white font-paytone-one sm:text-start text-center text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 md:mb-0 md:mr-4 flex-1">
             <h1 className="leading-tight">
               Moderno, bonito, inteligente... <br />
               <span className="text-primary">App For Barber,</span> <br /> um
@@ -28,13 +28,18 @@ export default function Hero() {
             />
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center md:justify-start justify-center gap-4 sm:gap-6 mt-4 font-nunito">
-          <Link href="/login" className="sm:w-auto w-full">
-            <Button className="px-14 sm:w-auto w-full">Entrar</Button>
+        <div className="flex flex-col sm:flex-row items-center md:justify-start justify-center gap-4 sm:gap-6 mt-4 mx-6 font-nunito">
+          <Link href="#" className="sm:w-auto w-full">
+            <Button className="px-14 sm:w-auto w-full text-lg font-semibold">
+              Escolha um Plano
+            </Button>
           </Link>
-          <Link href="/register" className="sm:w-auto w-full">
-            <Button variant="secondary" className="px-10 sm:w-auto w-full">
-              Cadastre-se
+          <Link href="#" className="sm:w-auto w-full">
+            <Button
+              variant="secondary"
+              className="px-10 sm:w-auto w-full text-lg font-semibold"
+            >
+              Agende uma Demonstração
             </Button>
           </Link>
         </div>

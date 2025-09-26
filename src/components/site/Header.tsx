@@ -88,7 +88,7 @@ export default function Header() {
           <li>
             <Link
               href="#hero"
-              className="block px-4 py-2 text-lg hover:text-primary duration-300"
+              className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
               onClick={(e) => scrollToSection(e, "#hero")}
             >
               Home
@@ -97,7 +97,7 @@ export default function Header() {
           <li>
             <Link
               href="#about"
-              className="block px-4 py-2 text-lg hover:text-primary duration-300"
+              className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
               onClick={(e) => scrollToSection(e, "#about")}
             >
               Sobre
@@ -106,7 +106,7 @@ export default function Header() {
           <li>
             <Link
               href="#plans"
-              className="block px-4 py-2 text-lg hover:text-primary duration-300"
+              className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
               onClick={(e) => scrollToSection(e, "#plans")}
             >
               Planos
@@ -115,7 +115,7 @@ export default function Header() {
           <li>
             <Link
               href="#contacts"
-              className="block px-4 py-2 text-lg hover:text-primary duration-300"
+              className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
               onClick={(e) => scrollToSection(e, "#contacts")}
             >
               Contato
