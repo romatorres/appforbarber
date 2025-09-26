@@ -17,7 +17,7 @@ const CardPlans: React.FC<CardPlansProps> = ({
   services,
 }) => {
   return (
-    <div className="rounded-lg bg-secondary border border-gray-1 w-[330px] px-4 py-6">
+    <div className="rounded-lg bg-secondary border border-gray-1 w-[330px] px-4 py-6 hover:-translate-y-2 duration-200 cursor-pointer">
       <h3 className="text-white font-nunito font-bold text-lg mb-2">{title}</h3>
       <p className="text-gray-3 font-nunito text-sm font-semibold mb-6">
         {subTitle}

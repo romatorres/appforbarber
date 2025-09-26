@@ -32,7 +32,9 @@ export default function Header() {
         <div className="text-lg font-bold">
           <Link
             href="#hero"
-            onClick={(e) => scrollToSection(e, "#hero", () => setIsMenuOpen(false))}
+            onClick={(e) =>
+              scrollToSection(e, "#hero", () => setIsMenuOpen(false))
+            }
           >
             <div className="relative sm:w-28 sm:h-20 w-20 h-14">
               <Image
@@ -77,8 +79,10 @@ export default function Header() {
           <li>
             <Link
               href="#hero"
-              className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
-              onClick={(e) => scrollToSection(e, "#hero", () => setIsMenuOpen(false))}
+              className="block md:px-1 px-4 py-2 text-lg hover:text-primary duration-300"
+              onClick={(e) =>
+                scrollToSection(e, "#hero", () => setIsMenuOpen(false))
+              }
             >
               Home
             </Link>
@@ -86,8 +90,10 @@ export default function Header() {
           <li>
             <Link
               href="#about"
-              className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
-              onClick={(e) => scrollToSection(e, "#about", () => setIsMenuOpen(false))}
+              className="block md:px-1 px-4 py-2 text-lg hover:text-primary duration-300"
+              onClick={(e) =>
+                scrollToSection(e, "#about", () => setIsMenuOpen(false))
+              }
             >
               Sobre
             </Link>
@@ -95,8 +101,10 @@ export default function Header() {
           <li>
             <Link
               href="#plans"
-              className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
-              onClick={(e) => scrollToSection(e, "#plans", () => setIsMenuOpen(false))}
+              className="block md:px-1 px-4 py-2 text-lg hover:text-primary duration-300"
+              onClick={(e) =>
+                scrollToSection(e, "#plans", () => setIsMenuOpen(false))
+              }
             >
               Planos
             </Link>

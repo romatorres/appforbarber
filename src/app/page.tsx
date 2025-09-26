@@ -23,7 +23,7 @@ export default function Home() {
       <section id="contacts" className="scroll-mt-20 md:scroll-mt-24">
         <Contacts />
       </section>
-      <section id="footer">
+      <section id="footer" className="scroll-mt-20 md:scroll-mt-24">
         <Footer />
       </section>
     </div>

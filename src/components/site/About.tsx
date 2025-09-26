@@ -31,7 +31,8 @@ export default function About() {
             </h2>
 
             <div className="flex flex-col gap-5 md:mt-16 mt-10">
-              <div className="flex items-center md:gap-6 gap-2 py-2 md:px-6 px-2 rounded-lg bg-secondary border border-gray-1">
+              {/* CARD 01 */}
+              <div className="flex items-center md:gap-6 gap-2 py-2 md:px-6 px-2 rounded-lg bg-secondary border border-gray-1 hover:-translate-y-1 duration-200 cursor-pointer">
                 <div className="relative md:h-[60px] h-10 md:w-[60px] w-10 flex-shrink-0">
                   <Image src="/img/icon-agenda.png" alt="Icone Agenda" fill />
                 </div>
@@ -39,8 +40,8 @@ export default function About() {
                   Agenda fácil para seus clientes
                 </p>
               </div>
-
-              <div className="flex items-center md:gap-6 gap-2 py-2 md:px-6 px-2 rounded-lg bg-secondary border border-gray-1">
+              {/* CARD 02 */}
+              <div className="flex items-center md:gap-6 gap-2 py-2 md:px-6 px-2 rounded-lg bg-secondary border border-gray-1 hover:-translate-y-1 duration-200 cursor-pointer">
                 <div className="relative md:h-[60px] h-10 md:w-[60px] w-10 flex-shrink-0">
                   <Image
                     src="/img/icon-dashboard.png"
@@ -52,8 +53,8 @@ export default function About() {
                   Painel de controle completo e descomplicado
                 </p>
               </div>
-
-              <div className="flex items-center md:gap-6 gap-2 py-2 md:px-6 px-2 rounded-lg bg-secondary border border-gray-1">
+              {/* CARD 03 */}
+              <div className="flex items-center md:gap-6 gap-2 py-2 md:px-6 px-2 rounded-lg bg-secondary border border-gray-1 hover:-translate-y-1 duration-200 cursor-pointer">
                 <div className="relative md:h-[60px] h-10 md:w-[60px] w-10 flex-shrink-0">
                   <Image src="/img/icon-config.png" alt="Icone Agenda" fill />
                 </div>

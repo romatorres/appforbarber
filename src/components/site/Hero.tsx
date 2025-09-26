@@ -31,20 +31,20 @@ export default function Hero() {
             />
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center md:justify-start justify-center gap-4 sm:gap-6 mt-4 mx-6 font-nunito">
+        <div className="flex flex-col sm:flex-row items-center md:justify-start justify-center gap-5 sm:gap-8 mt-4 sm:mx-0 mx-4 font-nunito">
           <Link
             href="#plans"
             className="sm:w-auto w-full"
             onClick={(e) => scrollToSection(e, "#plans")}
           >
-            <Button className="px-14 sm:w-auto w-full text-lg font-semibold">
+            <Button className="px-14 sm:py-7 py-6 sm:w-auto w-full text-lg font-semibold">
               Escolha um Plano
             </Button>
           </Link>
           <Link href="#" className="sm:w-auto w-full">
             <Button
               variant="secondary"
-              className="px-10 sm:w-auto w-full text-lg font-semibold"
+              className="px-10 sm:py-7 py-6 sm:w-auto w-full text-lg font-semibold"
             >
               Agende uma Demonstração
             </Button>

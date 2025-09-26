@@ -1,4 +1,4 @@
-import { Mail, Smartphone } from "lucide-react";
+import { SiWhatsapp, SiMaildotru } from "react-icons/si";
 import Image from "next/image";
 
 export default function Contacts() {
@@ -22,16 +22,16 @@ export default function Contacts() {
           </p>
         </div>
         <div className="flex lg:flex-row flex-col lg:justify-between justify-center items-center">
-          <div className="flex flex-col gap-3 lg:order-1 order-2 lg:mt-0 mt-12 font-nunito">
+          <div className="flex flex-col gap-5 lg:order-1 order-2 lg:mt-0 mt-12 font-nunito">
             <a href="#">
-              <p className="flex items-center md:gap-4 gap-1 md:text-2xl text-xl font-medium text-white transition-colors duration-400 hover:text-primary">
-                <Mail className="w-7 h-7" />
+              <p className="flex items-center md:gap-4 gap-1 md:text-2xl text-xl font-medium text-white duration-300 hover:-translate-0.5">
+                <SiMaildotru className="w-7 h-7" />
                 contato@appforbarber.com.br
               </p>
             </a>
             <a href="#">
-              <p className="flex items-center md:gap-4 gap-1 md:text-2xl text-xl font-medium text-white transition-colors duration-400 hover:text-primary">
-                <Smartphone className="w-7 h-7" />
+              <p className="flex items-center md:gap-4 gap-1 md:text-2xl text-xl font-medium text-white duration-300 hover:-translate-0.5">
+                <SiWhatsapp className="w-7 h-7" />
                 75 99900-9900
               </p>
             </a>
