@@ -28,12 +28,12 @@ export default function Hero() {
             />
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-4 font-nunito">
+        <div className="flex flex-col sm:flex-row items-center md:justify-start justify-center gap-4 sm:gap-6 mt-4 font-nunito">
           <Link href="/login" className="sm:w-auto w-full">
-            <Button className="px-8 sm:w-auto w-full">Entrar</Button>
+            <Button className="px-14 sm:w-auto w-full">Entrar</Button>
           </Link>
           <Link href="/register" className="sm:w-auto w-full">
-            <Button variant="secondary" className="px-8 sm:w-auto w-full">
+            <Button variant="secondary" className="px-10 sm:w-auto w-full">
               Cadastre-se
             </Button>
           </Link>

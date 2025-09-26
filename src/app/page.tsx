@@ -11,16 +11,16 @@ export default function Home() {
       <section id="home">
         <Header />
       </section>
-      <section id="hero">
+      <section id="hero" className="scroll-mt-20 md:scroll-mt-24">
         <Hero />
       </section>
-      <section id="about">
+      <section id="about" className="scroll-mt-16 md:scroll-mt-24">
         <About />
       </section>
-      <section id="">
+      <section id="plans" className="scroll-mt-16 md:scroll-mt-24">
         <Plans />
       </section>
-      <section id="contact">
+      <section id="contacts" className="scroll-mt-20 md:scroll-mt-24">
         <Contacts />
       </section>
       <section id="footer">

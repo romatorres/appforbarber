@@ -1,54 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { AlignRight, X } from "lucide-react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const menuRef = useRef<HTMLUListElement | null>(null); // Referência para o menu
-
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    // Checar inicialmente
-    checkIfMobile();
-
-    // Adicionar listener para resize
-    window.addEventListener("resize", checkIfMobile);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", checkIfMobile);
-  }, []);
-
-  // Fechar o menu ao clicar fora dele
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      // Garantindo que o menuRef seja do tipo HTMLElement
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isMenuOpen]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  // Effect to disable body scroll when menu is open on mobile
+  useEffect(() => {
+    if (isMenuOpen && window.innerWidth < 768) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    // Cleanup function
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isMenuOpen]);
 
   const scrollToSection = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -69,7 +44,7 @@ export default function Header() {
     <header className="bg-background text-white font-nunito py-2 fixed w-full top-0 left-0 z-50">
       <nav className="max-w-screen-xl mx-auto flex justify-between items-center md:px-12 px-6">
         <div className="text-lg font-bold">
-          <Link href="/">
+          <Link href="#hero" onClick={(e) => scrollToSection(e, "#hero")}>
             <div className="relative sm:w-28 sm:h-20 w-20 h-14">
               <Image
                 src="/img/logo.svg"
@@ -81,30 +56,34 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Botão Mobile */}
-        {isMobile && (
-          <button
+        {/* Mobile Menu Button */}
+        <button
+          onClick={toggleMenu}
+          className="md:hidden focus:outline-none z-[60]" // High z-index to be on top of everything
+          aria-expanded={isMenuOpen}
+          aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+        >
+          {isMenuOpen ? <X /> : <AlignRight />}
+        </button>
+
+        {/* Overlay de fundo (mobile) */}
+        {isMenuOpen && (
+          <div
+            className="md:hidden fixed inset-0 bg-black/80 z-40"
             onClick={toggleMenu}
-            className="md:hidden focus:outline-none"
-            aria-expanded={isMenuOpen}
-            aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
-          >
-            {isMenuOpen ? <X /> : <AlignRight />}
-          </button>
+          />
         )}
 
         {/* Menu de Navegação */}
         <ul
-          ref={menuRef} // Referência do menu
-          className={`${
-            isMobile
-              ? `absolute top-20 left-0 right-0 bg-background z-50 flex flex-col items-center ${
-                  isMenuOpen
-                    ? "translate-y-0 opacity-100 visible transition-all duration-300"
-                    : "-translate-y-10 opacity-0 invisible"
-                }`
-              : "flex flex-row opacity-100 visible static"
-          }`}
+          className={`
+            flex items-center md:flex-row md:static md:w-auto md:h-auto md:bg-transparent md:p-0 md:translate-x-0 md:opacity-100 md:pointer-events-auto absolute top-0 right-0 w-3/4 max-w-xs h-screen bg-background/95 z-50 flex-col justify-start pt-20 gap-6 transition-transform duration-300 ease-in-out
+            ${
+              isMenuOpen
+                ? "translate-x-0"
+                : "translate-x-full pointer-events-none"
+            }
+          `}
         >
           <li>
             <Link
@@ -140,13 +119,6 @@ export default function Header() {
               onClick={(e) => scrollToSection(e, "#contacts")}
             >
               Contato
-            </Link>
-          </li>
-          <li className="py-6 md:py-0 md:pl-8 pl-0">
-            <Link href="/login" className="block px-4">
-              <Button variant="outline" className="px-8">
-                Entrar
-              </Button>
             </Link>
           </li>
         </ul>
