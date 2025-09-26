@@ -1,6 +1,9 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { scrollToSection } from "../../lib/scroll";
 
 export default function Hero() {
   return (
@@ -29,7 +32,11 @@ export default function Hero() {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center md:justify-start justify-center gap-4 sm:gap-6 mt-4 mx-6 font-nunito">
-          <Link href="#" className="sm:w-auto w-full">
+          <Link
+            href="#plans"
+            className="sm:w-auto w-full"
+            onClick={(e) => scrollToSection(e, "#plans")}
+          >
             <Button className="px-14 sm:w-auto w-full text-lg font-semibold">
               Escolha um Plano
             </Button>

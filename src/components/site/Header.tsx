@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { AlignRight, X } from "lucide-react";
 import Image from "next/image";
+import { scrollToSection } from "../../lib/scroll";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,26 +26,14 @@ export default function Header() {
     };
   }, [isMenuOpen]);
 
-  const scrollToSection = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string
-  ) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-    setIsMenuOpen(false);
-  };
-
   return (
     <header className="bg-background text-white font-nunito py-2 fixed w-full top-0 left-0 z-50">
       <nav className="max-w-screen-xl mx-auto flex justify-between items-center md:px-12 px-6">
         <div className="text-lg font-bold">
-          <Link href="#hero" onClick={(e) => scrollToSection(e, "#hero")}>
+          <Link
+            href="#hero"
+            onClick={(e) => scrollToSection(e, "#hero", () => setIsMenuOpen(false))}
+          >
             <div className="relative sm:w-28 sm:h-20 w-20 h-14">
               <Image
                 src="/img/logo.svg"
@@ -89,7 +78,7 @@ export default function Header() {
             <Link
               href="#hero"
               className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
-              onClick={(e) => scrollToSection(e, "#hero")}
+              onClick={(e) => scrollToSection(e, "#hero", () => setIsMenuOpen(false))}
             >
               Home
             </Link>
@@ -98,7 +87,7 @@ export default function Header() {
             <Link
               href="#about"
               className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
-              onClick={(e) => scrollToSection(e, "#about")}
+              onClick={(e) => scrollToSection(e, "#about", () => setIsMenuOpen(false))}
             >
               Sobre
             </Link>
@@ -107,7 +96,7 @@ export default function Header() {
             <Link
               href="#plans"
               className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
-              onClick={(e) => scrollToSection(e, "#plans")}
+              onClick={(e) => scrollToSection(e, "#plans", () => setIsMenuOpen(false))}
             >
               Planos
             </Link>
@@ -116,7 +105,9 @@ export default function Header() {
             <Link
               href="#contacts"
               className="block md:px-0 px-4 py-2 text-lg hover:text-primary duration-300"
-              onClick={(e) => scrollToSection(e, "#contacts")}
+              onClick={(e) =>
+                scrollToSection(e, "#contacts", () => setIsMenuOpen(false))
+              }
             >
               Contato
             </Link>
