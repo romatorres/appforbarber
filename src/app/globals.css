@@ -50,8 +50,9 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --background-image-hero: url("/images/hero.jpg");
-  --background-image-banner: url("/images/banner.png");
+  --background-image-hero: url("/img/hero.jpg");
+  --background-image-contatos: url("/img/bg_contatos.png");
+  --background-image-banner: url("/img/banner.png");
   --background-image-pattern: url("/img/pattern.svg");
   --background-image-gradient-overlay: linear-gradient(
     to bottom,
