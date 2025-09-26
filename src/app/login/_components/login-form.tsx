@@ -35,7 +35,7 @@ interface LoginFormProps {
 
 export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const router = useRouter();
 
   const form = useForm<LoginFormValues>({
@@ -69,7 +69,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   }
 
   async function handleSignInGoogle() {
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
       callbackURL: "/dashboard",
     });
@@ -131,9 +131,9 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
                       disabled={isLoading}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        <EyeOff className="h-4 w-4 text-gray-2" />
                       ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
+                        <Eye className="h-4 w-4 text-gray-2" />
                       )}
                       <span className="sr-only">
                         {showPassword ? "Esconder senha" : "Mostrar senha"}
