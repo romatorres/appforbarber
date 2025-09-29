@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Paytone_One, Nunito } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 
 const paytoneOne = Paytone_One({
   variable: "--font-paytone-one",
@@ -31,7 +31,7 @@ export default function RootLayout({
         className={`${paytoneOne.variable} ${nunito.variable} font-nunito antialiased`}
       >
         {children}
-        <Toaster />
+        <Toaster richColors closeButton />
       </body>
     </html>
   );

@@ -57,12 +57,11 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
           //show loading
         },
         onSuccess: () => {
-          router.replace("/dashboard");
-          toast("Login relaizado com sucesso!");
+          router.replace("/admin");
+          toast.success("Login relaizado com sucesso!");
         },
-        onError: (ctx) => {
-          // display the error message
-          alert(ctx.error.message);
+        onError: () => {
+          toast.error("Email ou senha incorretos");
         },
       }
     );
@@ -71,7 +70,7 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   async function handleSignInGoogle() {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: "/admin",
     });
   }
 
