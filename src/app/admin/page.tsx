@@ -15,7 +15,6 @@ export default async function DashboardHome() {
   return (
     <div>
       <h1>Seja bem vindo!</h1>
-      <p>{session?.user?.name}</p>
       <Logout />
     </div>
   );

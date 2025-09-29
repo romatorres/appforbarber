@@ -46,7 +46,7 @@ export default function Hero() {
               variant="secondary"
               className="px-10 sm:py-7 py-6 sm:w-auto w-full text-lg font-semibold"
             >
-              Agende uma Demonstração
+              Veja uma Demonstração
             </Button>
           </Link>
         </div>
