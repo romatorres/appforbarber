@@ -15,10 +15,10 @@ export default function Logout() {
     });
   };
   return (
-    <div className="border-t border-gray01 py-4 flex-shrink-0">
+    <div>
       <button
         onClick={handleLogout}
-        className="w-full flex items-center p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
+        className="w-full flex items-center py-1 rounded-lg hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
       >
         <LogOut className="w-6 h-6 mr-2" />
         <span>Sair</span>

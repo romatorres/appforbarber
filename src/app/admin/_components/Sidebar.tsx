@@ -10,7 +10,7 @@ import {
   BarChart3,
   DollarSign,
   Settings,
-  User,
+  ChevronsUpDown,
 } from "lucide-react";
 
 import {
@@ -28,6 +28,13 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User as AuthUser } from "better-auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import Logout from "./Logout";
 
 const mainItems = [
   { title: "Home", url: "/admin", icon: Home },
@@ -130,28 +137,38 @@ export function AppSidebar({ user }: AppSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="w-8 h-8">
-            <AvatarImage src={user?.image ?? ""} />
-            <AvatarFallback className="bg-gray-1 text-white text-sm">
-              {user?.name ? (
-                user.name[0].toUpperCase()
-              ) : (
-                <User className="w-4 h-4" />
-              )}
-            </AvatarFallback>
-          </Avatar>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {user?.name ?? "Usuário"}
-              </p>
-              <p className="text-xs text-sidebar-foreground/70 truncate">
-                {user?.email ?? "email@exemplo.com"}
-              </p>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-4 hover:text-background p-2 rounded-md">
+              {/* Avatar + informações */}
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user?.image ?? ""} />
+                  <AvatarFallback>{user?.name?.[0] ?? "U"}</AvatarFallback>
+                </Avatar>
+                {!collapsed && (
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {user?.name ?? "Usuário"}
+                    </p>
+                    <p className="text-xs truncate">
+                      {user?.email ?? "email@exemplo.com"}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Ícone ao lado (abre o menu) */}
+              <ChevronsUpDown className="w-4 h-4 shrink-0 text-gray-3" />
             </div>
-          )}
-        </div>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent side="top" className="w-52">
+            <DropdownMenuItem>
+              <Logout />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </SidebarFooter>
     </Sidebar>
   );
