@@ -40,7 +40,7 @@ import Image from "next/image";
 const mainItems = [
   { title: "Home", url: "/admin", icon: Home },
   { title: "Agendamentos", url: "/admin/agendamentos", icon: Calendar },
-  { title: "Serviços", url: "/admin/servicos", icon: Briefcase },
+  { title: "Serviços", url: "/admin/services", icon: Briefcase },
   { title: "Profissionais", url: "/admin/profissionais", icon: Users },
   { title: "Relatórios", url: "/admin/relatorios", icon: BarChart3 },
   { title: "Fechamento", url: "/admin/fechamento", icon: DollarSign },

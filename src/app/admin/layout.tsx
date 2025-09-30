@@ -3,6 +3,7 @@ import { AppSidebar } from "@/app/admin/_components/Sidebar";
 import { ReactNode } from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { Bell } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -24,6 +25,16 @@ export default async function DashboardLayout({
           <header className="h-16 border-b border-sidebar-border bg-sidebar backdrop-blur-sm flex items-center px-6 gap-4">
             <SidebarTrigger className="text-gray-5 hover:text-gray-1 transition-colors" />
             <div className="flex-1" />
+            {/* Notificações */}
+            <button className="relative p-2 text-gray-5 hover:text-gray-1 transition-colors rounded-lg hover:bg-sidebar-accent">
+              <Bell className="w-5 h-5" />{" "}
+              <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-xs text-white items-center justify-center">
+                  3
+                </span>
+              </span>
+            </button>
           </header>
 
           <main className="flex-1 p-6">{children}</main>
