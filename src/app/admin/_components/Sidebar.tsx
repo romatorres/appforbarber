@@ -139,7 +139,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarFooter className="border-t border-sidebar-border p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-4 hover:text-background p-2 rounded-md">
+            <div className="flex items-center justify-between w-full cursor-pointer text-gray-5 hover:bg-gray-1/80 duration-200 p-2 rounded-md">
               {/* Avatar + informações */}
               <div className="flex items-center gap-3 min-w-0">
                 <Avatar className="w-8 h-8">
@@ -159,12 +159,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
               </div>
 
               {/* Ícone ao lado (abre o menu) */}
-              <ChevronsUpDown className="w-4 h-4 shrink-0 text-gray-3" />
+              <ChevronsUpDown className="w-4 h-4 shrink-0 " />
             </div>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent side="top" className="w-52">
-            <DropdownMenuItem>
+            <DropdownMenuItem className="p-0">
               <Logout />
             </DropdownMenuItem>
           </DropdownMenuContent>

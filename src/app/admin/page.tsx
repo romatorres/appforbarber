@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import Logout from "./_components/Logout";
 
 export default async function DashboardHome() {
   const session = await auth.api.getSession({
@@ -15,7 +14,6 @@ export default async function DashboardHome() {
   return (
     <div>
       <h1>Seja bem vindo!</h1>
-      <Logout />
     </div>
   );
 }
