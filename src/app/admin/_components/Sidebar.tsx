@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import Logout from "./Logout";
+import Image from "next/image";
 
 const mainItems = [
   { title: "Home", url: "/admin", icon: Home },
@@ -75,22 +76,24 @@ export function AppSidebar({ user }: AppSidebarProps) {
       className={`transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}
       collapsible="icon"
     >
-      <SidebarHeader className="border-b border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          {/* Logo */}
-          <div className="w-8 h-8 bg-gray-1 rounded-lg flex items-center justify-center shadow-elegant">
-            <Briefcase className="w-4 h-4 text-white" />
-          </div>
-          {!collapsed && (
-            <div>
-              <h2 className="font-semibold text-sidebar-foreground">Painel</h2>
-              <p className="text-xs text-sidebar-foreground/70">Controle</p>
-            </div>
-          )}
+      <SidebarHeader
+        className={`border-b border-sidebar-border ${
+          collapsed ? "py-5" : "p-2.5"
+        }`}
+      >
+        {/* Logo */}
+        <div className="flex items-center justify-center shadow-elegant">
+          <Image
+            src="/img/logo-mini.png"
+            alt="Logo miniatura"
+            height={43}
+            width={60}
+            className="object-cover"
+          />
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2 py-4">
+      <SidebarContent className={`${collapsed ? "px-0" : "px-2"} py-4`}>
         <SidebarGroup>
           <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
             Principal
@@ -139,14 +142,23 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarFooter className="border-t border-sidebar-border p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer text-gray-5 hover:bg-gray-1/80 duration-200 p-2 rounded-md">
-              {/* Avatar + informações */}
-              <div className="flex items-center gap-3 min-w-0">
+            {collapsed ? (
+              // Sidebar colapsada: só avatar
+              <div className="flex items-center justify-center w-full cursor-pointer">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={user?.image ?? ""} />
                   <AvatarFallback>{user?.name?.[0] ?? "U"}</AvatarFallback>
                 </Avatar>
-                {!collapsed && (
+              </div>
+            ) : (
+              // Sidebar expandida: avatar + nome/email + ícone
+              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-1/80 duration-200 p-2 rounded-md">
+                {/* Avatar + informações */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={user?.image ?? ""} />
+                    <AvatarFallback>{user?.name?.[0] ?? "U"}</AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
                       {user?.name ?? "Usuário"}
@@ -155,12 +167,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
                       {user?.email ?? "email@exemplo.com"}
                     </p>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Ícone ao lado (abre o menu) */}
-              <ChevronsUpDown className="w-4 h-4 shrink-0 " />
-            </div>
+                {/* Ícone ao lado */}
+                <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-60" />
+              </div>
+            )}
           </DropdownMenuTrigger>
 
           <DropdownMenuContent side="top" className="w-52">
