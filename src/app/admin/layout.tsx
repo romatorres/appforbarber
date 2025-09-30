@@ -8,7 +8,9 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-export default async function DashboardLayout({ children }: DashboardLayoutProps) {
+export default async function DashboardLayout({
+  children,
+}: DashboardLayoutProps) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -19,8 +21,8 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
         <AppSidebar user={session?.user} />
 
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm flex items-center px-6 gap-4">
-            <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
+          <header className="h-16 border-b border-sidebar-border bg-sidebar backdrop-blur-sm flex items-center px-6 gap-4">
+            <SidebarTrigger className="text-gray-5 hover:text-gray-1 transition-colors" />
             <div className="flex-1" />
           </header>
 
