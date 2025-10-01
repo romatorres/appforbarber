@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const signupSchema = z
   .object({
@@ -46,8 +46,7 @@ interface SignupFormProps {
 export default function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [isLoading] = useState(false);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -67,16 +66,15 @@ export default function SignupForm({ onSwitchToLogin }: SignupFormProps) {
         password: formData.password,
       },
       {
-        onRequest: (ctx) => {
+        onRequest: () => {
           //show loading
         },
-        onSuccess: (ctx) => {
-          console.log("Cadastrado", ctx);
-          router.replace("/login");
+        onSuccess: () => {
+          toast.success("Cadastro relaizado com sucesso!");
+          onSwitchToLogin();
         },
-        onError: (ctx) => {
-          // display the error message
-          alert(ctx.error.message);
+        onError: () => {
+          toast.error("Seu cadastro não pode ser realizado");
         },
       }
     );
