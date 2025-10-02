@@ -1,18 +1,18 @@
 import { create } from "zustand";
 import { ServicesService } from "@/services/services-service";
-import { Service, CreateServiceInput } from "@/schemas/service-schema";
+import { ServiceData, CreateServiceData } from "@/schemas/service-schema";
 import { toast } from "sonner";
 
 interface ServiceStore {
-  services: Service[];
+  services: ServiceData[];
   loading: boolean;
   error: string | null;
-  selectedService: Service | null;
-  fetchServices: () => Promise<void>;
-  createServices: (data: CreateServiceInput) => Promise<void>;
-  updateServices: (id: string, data: Partial<Service>) => Promise<void>;
+  selectedService: ServiceData | null;
+  loadServices: () => Promise<void>;
+  createServices: (data: CreateServiceData) => Promise<void>;
+  updateServices: (id: string, data: Partial<ServiceData>) => Promise<void>;
   deleteService: (id: string) => Promise<void>;
-  selectService: (service: Service | null) => void;
+  selectService: (service: ServiceData | null) => void;
 }
 
 export const useServiceStore = create<ServiceStore>((set) => ({
@@ -23,7 +23,7 @@ export const useServiceStore = create<ServiceStore>((set) => ({
 
   selectService: (service) => set({ selectedService: service }),
 
-  fetchServices: async () => {
+  loadServices: async () => {
     set({ loading: true, error: null });
     try {
       const data = await ServicesService.getAll();

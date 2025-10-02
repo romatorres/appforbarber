@@ -35,6 +35,6 @@ export const CreateServiceSchema = ServiceSchema.omit({ companyId: true });
 export const UpdateServiceSchema = CreateServiceSchema.partial();
 
 // Tipos
-export type ServiceData = z.infer<typeof ServiceSchema>;
+export type ServiceData = z.infer<typeof ServiceSchema> & { id: string };
 export type CreateServiceData = z.infer<typeof CreateServiceSchema>;
 export type UpdateServiceData = z.infer<typeof UpdateServiceSchema>;

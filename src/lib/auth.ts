@@ -1,8 +1,8 @@
+import { prisma } from "@/lib/prisma";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@/generated/prisma";
+import { customSession } from "better-auth/plugins";
 
-const prisma = new PrismaClient();
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -18,17 +18,23 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-  callbacks: {
-    session: async ({ session, user }) => {
-      if (session.user && user?.id) {
+  plugins: [
+    customSession(async ({ user, session }) => {
+      if (user) {
         const userProfile = await prisma.user.findUnique({
           where: { id: user.id },
+          select: { companyId: true },
         });
-        if (userProfile) {
-          (session.user as any).companyId = userProfile.companyId;
-        }
+
+        return {
+          ...session,
+          user: {
+            ...user,
+            companyId: userProfile?.companyId,
+          },
+        };
       }
       return session;
-    },
-  },
+    }),
+  ],
 });

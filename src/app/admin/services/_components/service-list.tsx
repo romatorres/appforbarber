@@ -12,10 +12,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Clock, DollarSign, MoreHorizontal } from "lucide-react";
 import { useServiceStore } from "@/store/service-store";
-import type { Service } from "@/types/service";
+import type { ServiceData as Service } from "@/schemas/service-schema";
 import { formatCurrency } from "@/lib/utils";
-
-// ... (funções formatCurrency e CustomBadge permanecem iguais)
 
 export default function ServiceList() {
   const { services, selectedService, deleteService, selectService } =
