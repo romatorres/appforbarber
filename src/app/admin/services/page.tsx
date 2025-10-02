@@ -1,28 +1,48 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 import ServiceList from "./_components/service-list";
+import ServiceForm from "./_components/service-form";
 
 export default function Services() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
-    <div className="container mx-auto p-4">
-      <div className="w-full space-y-8">
-        <div className="flex md:flex-row flex-col md:items-center items-start md:justify-between justify-center md:gap-0 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Serviços</h1>
-            <p className="text-gray-3 mt-1">
-              Gerencie todos os serviços do sistema
-            </p>
-          </div>
-          <Link href={"/dashboard/services/new/"} className="md:w-fit w-full">
-            <Button className="w-full">
-              <Plus />
+    <div className="container mx-auto py-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Serviços</h1>
+          <p className="text-gray-600 mt-2">
+            Gerencie os serviços da sua empresa
+          </p>
+        </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
               Serviço
             </Button>
-          </Link>
-        </div>
-        <ServiceList />
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Criar Novo Serviço</DialogTitle>
+            </DialogHeader>
+            <ServiceForm onSuccess={() => setIsDialogOpen(false)} />
+          </DialogContent>
+        </Dialog>
       </div>
+
+      <ServiceList />
     </div>
   );
 }
