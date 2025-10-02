@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import ServiceList from "./_components/service-list";
 import ServiceForm from "./_components/service-form";
 import { useServiceStore } from "@/store/service-store";
+import { PageHeaderAdmin } from "@/components/ui/page-header-admin";
 
 export default function Services() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -34,39 +35,43 @@ export default function Services() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+      {/* <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Serviços</h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-3 mt-2">
             Gerencie os serviços da sua empresa
           </p>
         </div>
+     </div> */}
+      <PageHeaderAdmin
+        title="Serviços"
+        description="Gerencie os serviços da sua empresa"
+      />
 
-        <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
-          <DialogTrigger asChild>
-            <Button
-              className="flex items-center gap-2"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Serviço
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>
-                {isEditing ? "Editar Serviço" : "Criar Novo Serviço"}
-              </DialogTitle>
-            </DialogHeader>
-            <ServiceForm
-              onSuccess={() => {
-                setIsDialogOpen(false);
-                selectService(null);
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
+      <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+        <DialogTrigger asChild>
+          <Button
+            className="flex items-center gap-2"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Serviço
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {isEditing ? "Editar Serviço" : "Criar Novo Serviço"}
+            </DialogTitle>
+          </DialogHeader>
+          <ServiceForm
+            onSuccess={() => {
+              setIsDialogOpen(false);
+              selectService(null);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
       <ServiceList />
     </div>
