@@ -8,47 +8,98 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============= MULTI-TENANT / FILIAIS =============
-
+// ============= COMPANY (MATRIZ) =============
 model Company {
-  id        String   @id @default(cuid())
-  name      String
-  cnpj      String?  @unique
-  email     String?
-  phone     String?
-  logo      String?
-  active    Boolean  @default(true)
+  id      String  @id @default(cuid())
+  name    String
+  cnpj    String? @unique
+  email   String?
+  phone   String?
+  logo    String?
+  address String?
+  city    String?
+  state   String?
+  zipCode String?
+  active  Boolean @default(true)
+
+  // Limites baseados no plano atual
+  maxBranches      Int @default(0) // 0 = só matriz, 1, 3, 5, -1 = ilimitado
+  maxEmployees     Int @default(2) // 2, 5, 10, -1 = ilimitado
+  currentBranches  Int @default(0) // Contador atual de filiais
+  currentEmployees Int @default(0) // Contador atual de funcionários
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  branches  Branch[]
-  users     User[]
 
-  @@map("company")
-}
-
-model Branch {
-  id              String           @id @default(cuid())
-  companyId       String
-  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  name            String
-  code            String // Código interno para identificação rápida
-  address         String?
-  city            String?
-  state           String?
-  zipCode         String?
-  phone           String?
-  email           String?
-  active          Boolean          @default(true)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  // Relações
+  users           User[]
+  branches        Branch[]
   employees       Employee[]
-  services        Service[]
+  services        Service[] // Serviços GLOBAIS (visíveis para todas as unidades)
   appointments    Appointment[]
   cashierClosings CashierClosing[]
   paymentMethods  PaymentMethod[]
   billCategories  BillCategory[]
   bills           Bill[]
   specialties     Specialty[]
+  subscription    Subscription?
+
+  @@map("company")
+}
+
+// ============= SUBSCRIPTION (ASSINATURAS/PLANOS) =============
+model Subscription {
+  id        String  @id @default(cuid())
+  companyId String  @unique
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Configuração do plano contratado
+  planName String // Ex: "Pro 3 Filiais - 5 Funcionários"
+  status   String @default("ACTIVE") // ACTIVE, CANCELLED, SUSPENDED, TRIAL
+
+  // Limites contratados
+  maxBranches  Int // 0, 1, 3, 5, -1 (ilimitado)
+  maxEmployees Int // 2, 5, 10, -1 (ilimitado)
+
+  // Pricing
+  pricePerMonth Float
+  billingCycle  String @default("MONTHLY") // MONTHLY, YEARLY
+
+  // Datas
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  trialEndsAt DateTime? // Para período de teste
+
+  autoRenew Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@map("subscription")
+}
+
+// ============= BRANCH (FILIAIS - OPCIONAL) =============
+model Branch {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  code      String // Código único para identificar a filial (ex: FIL001, FIL002)
+  address   String?
+  city      String?
+  state     String?
+  zipCode   String?
+  phone     String?
+  email     String?
+  managerId String? // Gerente responsável pela filial
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações - dados SEGREGADOS por filial
+  employees       Employee[] // Funcionários EXCLUSIVOS desta filial
+  appointments    Appointment[] // Agendamentos desta filial
+  cashierClosings CashierClosing[] // Caixa desta filial
 
   @@unique([companyId, code])
   @@index([companyId])
@@ -56,25 +107,23 @@ model Branch {
 }
 
 // ============= USUÁRIOS E AUTENTICAÇÃO =============
-
 model User {
-  id             String           @id @default(cuid())
-  companyId      String?
-  company        Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  name           String
-  email          String
-  emailVerified  Boolean          @default(false)
-  image          String?
-  role           String           @default("USER") // SUPER_ADMIN, ADMIN, MANAGER, USER
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now()) @updatedAt
-  sessions       Session[]
-  accounts       Account[]
-  employee       Employee?
-  appointments   Appointment[]
-  cashierClosing CashierClosing[]
+  id              String           @id @default(cuid())
+  companyId       String?
+  company         Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name            String
+  email           String           @unique
+  emailVerified   Boolean          @default(false)
+  image           String?
+  role            String           @default("USER") // SUPER_ADMIN, ADMIN, MANAGER, USER
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  sessions        Session[]
+  accounts        Account[]
+  employee        Employee?
+  appointments    Appointment[]
+  cashierClosings CashierClosing[]
 
-  @@unique([email])
   @@index([companyId])
   @@map("user")
 }
@@ -82,7 +131,7 @@ model User {
 model Session {
   id        String   @id @default(cuid())
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -90,7 +139,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }
 
@@ -124,71 +172,107 @@ model Verification {
   @@map("verification")
 }
 
-// ============= FUNCIONÁRIOS E SERVIÇOS =============
-
+// ============= FUNCIONÁRIOS (EXCLUSIVOS POR UNIDADE) =============
 model Employee {
-  id             String           @id @default(cuid())
-  branchId       String
-  branch         Branch           @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  userId         String?          @unique
-  user           User?            @relation(fields: [userId], references: [id])
-  name           String
-  email          String
-  appointments   Appointment[]
-  services       Service[]
-  commissions    Commission[]
-  commissionRate Float            @default(50.0)
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // IMPORTANTE: Funcionário é EXCLUSIVO de uma unidade
+  branchId String? // null = trabalha na MATRIZ, preenchido = trabalha em FILIAL específica
+  branch   Branch? @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  userId      String? @unique
+  user        User?   @relation(fields: [userId], references: [id])
+  name        String
+  email       String
+  phoneNumber String?
+
+  // Dados profissionais
+  commissionRate Float    @default(50.0)
   specialties    String?
   bio            String?
-  phoneNumber    String?
-  startDate      DateTime         @default(now())
-  status         String           @default("ACTIVE")
+  startDate      DateTime @default(now())
+  status         String   @default("ACTIVE") // ACTIVE, INACTIVE, ON_LEAVE
+
+  // Relações
+  appointments   Appointment[]
+  services       Service[] // Serviços que este funcionário pode executar
+  commissions    Commission[]
   serviceHistory ServiceHistory[]
   schedule       WorkSchedule[]
   specialty      Specialty[]
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
   @@index([branchId])
   @@map("employee")
 }
 
+// ============= SERVIÇOS (GLOBAIS - NÍVEL DA COMPANY) =============
 model Service {
-  id             String           @id @default(cuid())
-  branchId       String
-  branch         Branch           @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  name           String
-  description    String
-  duration       Int // in minutes
-  price          Float
-  active         Boolean          @default(true)
-  employees      Employee[]
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String
+  duration    Int // em minutos
+  price       Float
+  active      Boolean @default(true)
+
+  // Serviços são GLOBAIS - visíveis para TODAS as unidades (matriz + filiais)
+  // Mas podem ser executados por funcionários específicos de cada unidade
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employees      Employee[] // Funcionários habilitados para este serviço
   appointments   Appointment[]
   serviceHistory ServiceHistory[]
 
-  @@index([branchId])
+  @@index([companyId])
+  @@index([active])
   @@map("service")
 }
 
+// ============= AGENDAMENTOS (INDIVIDUAIS POR UNIDADE) =============
 model Appointment {
-  id             String          @id @default(cuid())
-  branchId       String
-  branch         Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  date           DateTime
-  status         String          @default("PENDING")
-  userId         String
-  user           User            @relation(fields: [userId], references: [id])
-  employeeId     String
-  employee       Employee        @relation(fields: [employeeId], references: [id])
-  serviceId      String
-  service        Service         @relation(fields: [serviceId], references: [id])
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // IMPORTANTE: Agendamento é INDIVIDUAL por unidade
+  branchId String? // null = agendamento na MATRIZ, preenchido = agendamento em FILIAL específica
+  branch   Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  date   DateTime
+  status String   @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  employeeId String // Funcionário da unidade específica
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  serviceId String // Serviço global
+  service   Service @relation(fields: [serviceId], references: [id])
+
   commission     Commission?
   voucher        Voucher?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  notes          String?
   serviceHistory ServiceHistory?
 
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
   @@index([branchId])
+  @@index([employeeId])
   @@index([date])
+  @@index([status])
   @@map("appointment")
 }
 
@@ -233,16 +317,16 @@ model ServiceHistory {
   feedback      String? // Customer feedback
   createdAt     DateTime    @default(now())
 
+  @@index([employeeId])
   @@index([date])
   @@map("service_history")
 }
 
-// ============= PAGAMENTOS E FINANCEIRO =============
-
+// ============= PAGAMENTOS E FINANCEIRO (GLOBAIS) =============
 model PaymentMethod {
   id          String    @id @default(cuid())
-  branchId    String
-  branch      Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   name        String
   isActive    Boolean   @default(true)
   description String?
@@ -250,7 +334,7 @@ model PaymentMethod {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@index([branchId])
+  @@index([companyId])
   @@map("payment_method")
 }
 
@@ -273,7 +357,7 @@ model Payment {
   voucherId        String?         @unique
   voucher          Voucher?        @relation(fields: [voucherId], references: [id])
   bill             Bill?
-  type             String          @default("INCOME")
+  type             String          @default("INCOME") // INCOME, EXPENSE
   status           String          @default("COMPLETED")
   paymentMethodId  String
   paymentMethod    PaymentMethod   @relation(fields: [paymentMethodId], references: [id])
@@ -285,17 +369,18 @@ model Payment {
   updatedAt        DateTime        @updatedAt
 
   @@index([cashierClosingId])
+  @@index([type])
   @@map("payment")
 }
 
 model Bill {
   id          String       @id @default(cuid())
-  branchId    String
-  branch      Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   description String
   amount      Float
   dueDate     DateTime
-  status      String       @default("PENDING")
+  status      String       @default("PENDING") // PENDING, PAID, OVERDUE, CANCELLED
   categoryId  String
   category    BillCategory @relation(fields: [categoryId], references: [id])
   supplier    String?
@@ -304,30 +389,37 @@ model Bill {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  @@index([branchId])
+  @@index([companyId])
   @@index([dueDate])
+  @@index([status])
   @@map("bill")
 }
 
 model BillCategory {
   id          String   @id @default(cuid())
-  branchId    String
-  branch      Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   name        String
   description String?
   bills       Bill[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@unique([branchId, name])
-  @@index([branchId])
+  @@unique([companyId, name])
+  @@index([companyId])
   @@map("bill_category")
 }
 
+// ============= FECHAMENTO DE CAIXA (CONSOLIDADO POR UNIDADE) =============
 model CashierClosing {
-  id               String    @id @default(cuid())
-  branchId         String
-  branch           Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // IMPORTANTE: Cada unidade tem seu próprio caixa
+  branchId String? // null = caixa da MATRIZ, preenchido = caixa de FILIAL específica
+  branch   Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
   date             DateTime
   openingBalance   Float     @default(0)
   closingBalance   Float
@@ -335,12 +427,14 @@ model CashierClosing {
   totalExpenses    Float
   totalCommissions Float
   observations     String?
-  status           String    @default("OPEN")
+  status           String    @default("OPEN") // OPEN, CLOSED
   closedBy         String
+  closedAt         DateTime?
   payments         Payment[]
   user             User      @relation(fields: [closedBy], references: [id])
 
-  @@unique([branchId, date])
+  @@unique([companyId, branchId, date])
+  @@index([companyId])
   @@index([branchId])
   @@index([date])
   @@map("cashier_closing")
@@ -348,15 +442,15 @@ model CashierClosing {
 
 model Specialty {
   id          String     @id @default(cuid())
-  branchId    String
-  branch      Branch     @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   name        String
   description String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   employees   Employee[]
 
-  @@unique([branchId, name])
-  @@index([branchId])
+  @@unique([companyId, name])
+  @@index([companyId])
   @@map("specialty")
 }
