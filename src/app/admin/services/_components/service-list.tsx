@@ -9,12 +9,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Clock, DollarSign, MoreHorizontal } from "lucide-react";
 import { useServiceStore } from "@/store/service-store";
 import type { ServiceData as Service } from "@/schemas/service-schema";
 import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
 
 // Componente para o esqueleto de um item da lista
 function ServiceItemSkeleton() {
@@ -43,22 +52,25 @@ function ServiceItemSkeleton() {
 }
 
 export default function ServiceList() {
-  const {
-    services,
-    loading,
-    selectedService,
-    deleteService,
-    selectService,
-  } = useServiceStore();
+  const { services, loading, selectedService, deleteService, selectService } =
+    useServiceStore();
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
 
   const handleDelete = async (service: Service) => {
-    if (confirm(`Tem certeza que deseja excluir o serviço "${service.name}"?`)) {
-      try {
-        await deleteService(service.id);
-      } catch (error) {
-        console.error("Erro ao excluir serviço:", error);
-      }
+    try {
+      await deleteService(service.id);
+      setServiceToDelete(null);
+    } catch (error) {
+      console.error("Erro ao excluir serviço:", error);
     }
+  };
+
+  const handleConfirmDelete = (service: Service) => {
+    setServiceToDelete(service);
+  };
+
+  const handleCancelDelete = () => {
+    setServiceToDelete(null);
   };
 
   const handleEdit = (service: Service) => {
@@ -122,7 +134,7 @@ export default function ServiceList() {
 
                       <DropdownMenuItem
                         className="text-destructive"
-                        onClick={() => handleDelete(service)}
+                        onClick={() => handleConfirmDelete(service)}
                       >
                         Excluir
                       </DropdownMenuItem>
@@ -147,9 +159,7 @@ export default function ServiceList() {
                   </div>
 
                   <div>
-                    <Badge
-                      variant={service.active ? "default" : "destructive"}
-                    >
+                    <Badge variant={service.active ? "default" : "destructive"}>
                       {service.active ? "Ativo" : "Inativo"}
                     </Badge>
                   </div>
@@ -159,6 +169,31 @@ export default function ServiceList() {
           </Card>
         ))}
       </div>
+
+      {/* Dialog de confirmação de exclusão */}
+      <Dialog open={!!serviceToDelete} onOpenChange={handleCancelDelete}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmar exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir o serviço{" "}
+              <span className="font-bold"> {serviceToDelete?.name}? </span>
+              Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelDelete}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => serviceToDelete && handleDelete(serviceToDelete)}
+            >
+              Excluir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
