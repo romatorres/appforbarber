@@ -1,71 +1,44 @@
-"use client";
+import { prisma } from "@/lib/prisma";
+import ServicesClientPage from "./_components/services-page";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
-import ServiceList from "./_components/service-list";
-import ServiceForm from "./_components/service-form";
-import { useServiceStore } from "@/store/service-store";
-import { PageTitleAdmin } from "@/components/ui/page-title-admin";
+// Revalidate this page every 60 seconds
+export const revalidate = 60;
 
-export default function Services() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { loadServices, selectedService, selectService } = useServiceStore();
+export default async function ServicesPage() {
+  const session = await auth.api.getSession({
+    headers: new Headers(await headers()),
+  });
 
-  useEffect(() => {
-    loadServices();
-  }, [loadServices]);
+  if (!session?.userId) {
+    redirect("/api/auth/signin");
+  }
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      setIsDialogOpen(false);
-      selectService(null);
-    }
-  };
+  // Usar o userId da sessão para buscar o usuário e seu companyId
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { companyId: true },
+  });
 
-  const isEditing = !!selectedService;
-  const dialogOpen = isDialogOpen || isEditing;
+  // Se o usuário não tiver uma empresa, retorna uma lista vazia.
+  if (!user?.companyId) {
+    toast.error(
+      "Usuário sem empresa associada tentou acessar a página de serviços."
+    );
+    return <ServicesClientPage initialServices={[]} />;
+  }
 
-  return (
-    <div className="container mx-auto sm:p-4 p-1 space-y-6">
-      <PageTitleAdmin
-        title="Serviços"
-        description="Gerencie os serviços da sua empresa"
-        dialog={
-          <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>
-              <Button
-                className="flex items-center gap-2 w-full sm:w-auto justify-center"
-                onClick={() => setIsDialogOpen(true)}
-              >
-                <Plus className="h-4 w-4" />
-                Serviço
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>
-                  {isEditing ? "Editar Serviço" : "Criar Novo Serviço"}
-                </DialogTitle>
-              </DialogHeader>
-              <ServiceForm
-                onSuccess={() => {
-                  setIsDialogOpen(false);
-                  selectService(null);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
-        }
-      />
-      <ServiceList />
-    </div>
-  );
+  const services = await prisma.service.findMany({
+    where: {
+      companyId: user.companyId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return <ServicesClientPage initialServices={services} />;
 }

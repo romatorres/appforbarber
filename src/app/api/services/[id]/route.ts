@@ -7,7 +7,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const data = await req.json();
-  const updated = await prisma.sevice.update({
+  const updated = await prisma.service.update({
     where: { id },
     data,
   });

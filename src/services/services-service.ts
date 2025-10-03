@@ -1,17 +1,17 @@
-import { Service, CreateServiceInput } from "@/schemas/service-schema";
+import { ServiceData, CreateServiceData } from "@/schemas/service-schema";
 import { apiClient } from "@/lib/api-client";
 
 export const ServicesService = {
-  async getAll(): Promise<Service[]> {
+  async getAll(): Promise<ServiceData[]> {
     return apiClient("/api/services");
   },
-  async create(data: CreateServiceInput): Promise<Service> {
+  async create(data: CreateServiceData): Promise<ServiceData> {
     return apiClient("/api/services", {
       method: "POST",
       body: JSON.stringify(data),
     });
   },
-  async update(id: string, data: Partial<Service>): Promise<Service> {
+  async update(id: string, data: Partial<ServiceData>): Promise<ServiceData> {
     return apiClient(`/api/services/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),

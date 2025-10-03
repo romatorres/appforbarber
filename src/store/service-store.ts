@@ -8,6 +8,7 @@ interface ServiceStore {
   loading: boolean;
   error: string | null;
   selectedService: ServiceData | null;
+  setServices: (services: ServiceData[]) => void; // Add this line
   loadServices: () => Promise<void>;
   createServices: (data: CreateServiceData) => Promise<void>;
   updateServices: (id: string, data: Partial<ServiceData>) => Promise<void>;
@@ -20,6 +21,8 @@ export const useServiceStore = create<ServiceStore>((set) => ({
   loading: false,
   error: null,
   selectedService: null,
+
+  setServices: (services) => set({ services, loading: false, error: null }), // Add this line
 
   selectService: (service) => set({ selectedService: service }),
 
