@@ -11,6 +11,9 @@ import {
 } from "@/schemas/service-schema";
 import { useServiceStore } from "@/store/service-store";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ServiceFormProps {
   onSuccess?: () => void;
@@ -110,11 +113,10 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Nome */}
       <div>
-        <input
-          {...register("name")}
-          placeholder="Nome do serviço"
-          className="border p-2 rounded w-full"
-        />
+        <label className="block text-sm text-gray-3 mb-1">
+          Nome do serviço
+        </label>
+        <Input {...register("name")} placeholder="Nome do serviço" />
         {errors.name && (
           <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
         )}
@@ -122,11 +124,13 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
 
       {/* Descrição */}
       <div>
-        <textarea
+        <label className="block text-sm text-gray-3 mb-1">
+          Descrição do serviço
+        </label>
+        <Textarea
           {...register("description")}
           placeholder="Descrição do serviço"
           rows={3}
-          className="border p-2 rounded w-full"
         />
         {errors.description && (
           <p className="text-red-500 text-sm mt-1">
@@ -138,16 +142,15 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
       {/* Duração e Preço */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm text-gray-3 mb-1">
             Duração (minutos)
           </label>
-          <input
+          <Input
             type="number"
             {...register("duration", { valueAsNumber: true })}
             placeholder="30"
             step="5"
             min="5"
-            className="border p-2 rounded w-full"
           />
           {errors.duration && (
             <p className="text-red-500 text-sm mt-1">
@@ -157,14 +160,13 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Preço (R$)</label>
-          <input
+          <label className="block text-sm text-gray-3 mb-1">Preço (R$)</label>
+          <Input
             type="number"
             {...register("price", { valueAsNumber: true })}
             placeholder="0.00"
             step="0.01"
             min="0"
-            className="border p-2 rounded w-full"
           />
           {errors.price && (
             <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
@@ -175,7 +177,7 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
       {/* Status Ativo (apenas na edição) */}
       {selectedService && (
         <div className="flex items-center gap-2">
-          <input
+          <Input
             type="checkbox"
             {...register("active")}
             id="active"
@@ -191,25 +193,17 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
       )}
 
       {/* Botões */}
-      <div className="flex gap-2 pt-4">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400 hover:bg-blue-700 transition-colors"
-        >
+      <div className="flex justify-end gap-3 pt-4">
+        <Button type="button" onClick={handleCancel} variant="outline">
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isSubmitting} variant="default">
           {isSubmitting
             ? "Salvando..."
             : selectedService
             ? "Salvar"
             : "Criar Serviço"}
-        </button>
-        <button
-          type="button"
-          onClick={handleCancel}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
-        >
-          Cancelar
-        </button>
+        </Button>
       </div>
     </form>
   );
