@@ -73,6 +73,7 @@ export default function ServiceList() {
                           Editar
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
+
                         <DropdownMenuItem
                           className="text-destructive"
                           onClick={() => handleDelete(service)}
