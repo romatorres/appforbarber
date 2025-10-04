@@ -180,7 +180,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                                   href={sub.url}
                                   className={getNavClass(sub.url)}
                                 >
-                                  <sub.icon className="w-4 h-4 shrink-0" />
+                                  <sub.icon className="w-4 h-4 shrink-0 !text-sidebar-foreground" />
                                   <span>{sub.title}</span>
                                 </Link>
                               </SidebarMenuSubButton>
