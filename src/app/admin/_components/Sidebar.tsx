@@ -11,6 +11,9 @@ import {
   DollarSign,
   Settings,
   ChevronsUpDown,
+  ChevronDown,
+  CircleDollarSign,
+  Building2,
 } from "lucide-react";
 
 import {
@@ -22,10 +25,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarHeader,
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { User as AuthUser } from "better-auth";
 import {
@@ -47,7 +58,18 @@ const mainItems = [
 ];
 
 const configItems = [
-  { title: "Configurações", url: "/admin/configuracoes", icon: Settings },
+  {
+    title: "Configurações",
+    icon: Settings,
+    submenu: [
+      { title: "Empresa", url: "/admin/settings/company", icon: Building2 },
+      {
+        title: "Pagamentos",
+        url: "/admin/settings/payments",
+        icon: CircleDollarSign,
+      },
+    ],
+  },
 ];
 
 interface AppSidebarProps {
@@ -76,12 +98,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
       className={`transition-all duration-300 ${collapsed ? "w-16" : "w-64"}`}
       collapsible="icon"
     >
+      {/* ===== Header ===== */}
       <SidebarHeader
         className={`border-b border-sidebar-border ${
           collapsed ? "py-5" : "p-2.5"
         }`}
       >
-        {/* Logo */}
         <div className="flex items-center justify-center shadow-elegant">
           <Image
             src="/img/logo-mini.png"
@@ -93,7 +115,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </div>
       </SidebarHeader>
 
+      {/* ===== Conteúdo ===== */}
       <SidebarContent className={`${collapsed ? "px-0" : "px-2"} py-4`}>
+        {/* Grupo principal */}
         <SidebarGroup>
           <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
             Principal
@@ -116,6 +140,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Grupo Sistema (com submenu colapsável) */}
         <SidebarGroup className="mt-6">
           <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
             Sistema
@@ -124,14 +149,47 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <SidebarMenu>
               {configItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="mb-1">
-                    <Link href={item.url} className={getNavClass(item.url)}>
-                      <item.icon className="w-5 h-5 shrink-0" />
-                      {!collapsed && (
-                        <span className="font-medium">{item.title}</span>
+                  <Collapsible
+                    defaultOpen={false}
+                    className="group/collapsible"
+                  >
+                    {/* Botão principal do menu */}
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton className="mb-1 w-full flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <item.icon className="w-5 h-5 shrink-0" />
+                          {!collapsed && (
+                            <span className="font-medium">{item.title}</span>
+                          )}
+                        </div>
+
+                        {!collapsed && (
+                          <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                        )}
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {/* Submenu (visível só quando aberto) */}
+                    <CollapsibleContent>
+                      {!collapsed && item.submenu && (
+                        <SidebarMenuSub>
+                          {item.submenu.map((sub) => (
+                            <SidebarMenuSubItem key={sub.title}>
+                              <SidebarMenuSubButton asChild>
+                                <Link
+                                  href={sub.url}
+                                  className={getNavClass(sub.url)}
+                                >
+                                  <sub.icon className="w-4 h-4 shrink-0" />
+                                  <span>{sub.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
                       )}
-                    </Link>
-                  </SidebarMenuButton>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -139,11 +197,11 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
+      {/* ===== Footer ===== */}
       <SidebarFooter className="border-t border-sidebar-border p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             {collapsed ? (
-              // Sidebar colapsada: só avatar
               <div className="flex items-center justify-center w-full cursor-pointer">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={user?.image ?? ""} />
@@ -151,9 +209,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 </Avatar>
               </div>
             ) : (
-              // Sidebar expandida: avatar + nome/email + ícone
               <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-1/80 duration-200 p-2 rounded-md">
-                {/* Avatar + informações */}
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={user?.image ?? ""} />
@@ -168,8 +224,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
                     </p>
                   </div>
                 </div>
-
-                {/* Ícone ao lado */}
                 <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-60" />
               </div>
             )}
