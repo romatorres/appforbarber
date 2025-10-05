@@ -1,9 +1,11 @@
 export async function apiClient(url: string, options?: RequestInit) {
-  const res = await fetch(url, {
-    credentials: 'include',
+  const absoluteUrl = `${process.env.NEXT_PUBLIC_APP_URL}${url}`;
+
+  const res = await fetch(absoluteUrl, {
+    credentials: "include",
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(options?.headers || {}),
     },
   });
@@ -14,8 +16,8 @@ export async function apiClient(url: string, options?: RequestInit) {
   }
 
   // try parse json, otherwise return null
-  const contentType = res.headers.get('content-type') || '';
-  if (contentType.includes('application/json')) {
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
     return res.json();
   }
   return null;

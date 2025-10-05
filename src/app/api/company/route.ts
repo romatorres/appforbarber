@@ -2,8 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const companys = await prisma.company.findMany({ orderBy: { createdAt: "desc" } });
-  return NextResponse.json(companys);
+  const company = await prisma.company.findFirst();
+  return NextResponse.json(company);
 }
 
 export async function POST(req: Request) {
