@@ -1,5 +1,9 @@
 export async function apiClient(url: string, options?: RequestInit) {
-  const absoluteUrl = `${process.env.NEXT_PUBLIC_APP_URL}${url}`;
+  const baseUrl = typeof window === 'undefined'
+    ? process.env.NEXT_PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`
+    : ''; // Use relative path on the client
+
+  const absoluteUrl = `${baseUrl}${url}`;
 
   const res = await fetch(absoluteUrl, {
     credentials: "include",

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BranchSchema } from "./branch-schema";
 
 export const CompanySchema = z.object({
   name: z
@@ -38,6 +39,7 @@ export const CompanySchema = z.object({
   maxEmployees: z.number().int().min(-1).default(2),
   currentBranches: z.number().int().min(0).default(0),
   currentEmployees: z.number().int().min(0).default(0),
+  branches: z.array(BranchSchema).optional(),
 });
 
 // Para criação - campos obrigatórios apenas

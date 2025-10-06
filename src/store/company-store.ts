@@ -29,7 +29,7 @@ export const useCompanyStore = create<CompanyStore>((set) => ({
   loadCompany: async () => {
     set({ loading: true, error: null });
     try {
-      const data = await CompanyService.getCurrent();
+      const data = await CompanyService.getCompany();
       set({ company: data, loading: false });
     } catch (error) {
       const errorMessage = "Erro ao carregar dados da empresa";

@@ -29,9 +29,10 @@ import { Loader2, Building2, Save } from "lucide-react";
 
 interface CompanyFormProps {
   company: CompanyData;
+  onFinish: () => void;
 }
 
-export default function CompanyForm({ company }: CompanyFormProps) {
+export default function CompanyForm({ company, onFinish }: CompanyFormProps) {
   const { updateCompany, loading } = useCompanyStore();
 
   const form = useForm<UpdateCompanyData>({
@@ -49,7 +50,10 @@ export default function CompanyForm({ company }: CompanyFormProps) {
   });
 
   const onSubmit = async (data: UpdateCompanyData) => {
-    await updateCompany(company.id, data);
+    const updatedCompany = await updateCompany(company.id, data);
+    if (updatedCompany) {
+      onFinish(); // Volta para o modo de visualização
+    }
   };
 
   return (
@@ -194,6 +198,9 @@ export default function CompanyForm({ company }: CompanyFormProps) {
             </div>
 
             <div className="flex justify-end gap-2">
+               <Button type="button" variant="outline" onClick={onFinish} disabled={loading}>
+                Cancelar
+              </Button>
               <Button type="submit" disabled={loading}>
                 {loading ? (
                   <>

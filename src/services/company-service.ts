@@ -1,4 +1,8 @@
-import { CompanyData, CreateCompanyData, UpdateCompanyData } from "@/schemas/company-schema";
+import {
+  CompanyData,
+  CreateCompanyData,
+  UpdateCompanyData,
+} from "@/schemas/company-schema";
 import { apiClient } from "@/lib/api-client";
 
 export const CompanyService = {
