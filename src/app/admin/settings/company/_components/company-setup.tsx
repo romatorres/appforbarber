@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCompanyStore } from "@/store/company-store";
-import { CreateCompanySchema, type CreateCompanyData } from "@/schemas/company-schema";
+import {
+  CreateCompanySchema,
+  type CreateCompanyData,
+} from "@/schemas/company-schema";
 import {
   Form,
   FormControl,
@@ -15,7 +18,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Loader2, Building2, Plus } from "lucide-react";
 
 export function CompanySetup() {
@@ -48,9 +57,12 @@ export function CompanySetup() {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Building2 className="h-16 w-16 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Nenhuma empresa cadastrada</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Nenhuma empresa cadastrada
+          </h3>
           <p className="text-muted-foreground text-center mb-6 max-w-md">
-            Para começar a usar o sistema, você precisa cadastrar os dados da sua empresa.
+            Para começar a usar o sistema, você precisa cadastrar os dados da
+            sua empresa.
           </p>
           <Button onClick={() => setIsCreating(true)}>
             <Plus className="mr-2 h-4 w-4" />
@@ -84,7 +96,10 @@ export function CompanySetup() {
                   <FormItem>
                     <FormLabel>Nome da Empresa *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite o nome da empresa" {...field} />
+                      <Input
+                        placeholder="Digite o nome da empresa"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -115,7 +130,11 @@ export function CompanySetup() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="contato@empresa.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="contato@empresa.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -199,9 +218,9 @@ export function CompanySetup() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => setIsCreating(false)}
                 disabled={loading}
               >
