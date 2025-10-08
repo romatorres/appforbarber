@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Clock, DollarSign, MoreHorizontal } from "lucide-react";
+import { Clock, DollarSign, EllipsisVertical } from "lucide-react";
 import { useServiceStore } from "@/store/service-store";
 import type { ServiceData as Service } from "@/schemas/service-schema";
 import { formatCurrency } from "@/lib/utils";
@@ -123,7 +123,7 @@ export default function ServiceList() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-5 w-5" />
+                        <EllipsisVertical className="h-5 w-5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
