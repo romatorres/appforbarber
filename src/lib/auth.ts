@@ -23,7 +23,7 @@ export const auth = betterAuth({
       if (user) {
         const userProfile = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { companyId: true },
+          select: { companyId: true, role: true },
         });
 
         return {
@@ -31,6 +31,7 @@ export const auth = betterAuth({
           user: {
             ...user,
             companyId: userProfile?.companyId,
+            role: userProfile?.role,
           },
         };
       }

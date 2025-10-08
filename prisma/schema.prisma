@@ -8,6 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EMPLOYEE
+  USER
+}
+
 // ============= COMPANY (MATRIZ) =============
 model Company {
   id      String  @id @default(cuid())
@@ -115,7 +122,7 @@ model User {
   email           String           @unique
   emailVerified   Boolean          @default(false)
   image           String?
-  role            String           @default("USER") // SUPER_ADMIN, ADMIN, MANAGER, USER
+  role            Role             @default(USER)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @default(now()) @updatedAt
   sessions        Session[]
