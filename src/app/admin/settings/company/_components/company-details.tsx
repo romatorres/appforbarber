@@ -56,7 +56,7 @@ export const CompanyDetails = ({ company, onEdit }: CompanyDetailsProps) => {
           <DetailItem label="Email" value={company.email} />
           <DetailItem label="Telefone" value={company.phone} />
         </div>
-        <hr />
+        <hr className="border-gray-1" />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <DetailItem label="Endereço" value={company.address} />
           <DetailItem label="Cidade" value={company.city} />
