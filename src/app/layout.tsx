@@ -1,7 +1,11 @@
-import type { Metadata } from "next";
-import { Paytone_One, Nunito } from "next/font/google";
+import type { Metadata } from "next";                                                                                                                                              │
+import { Paytone_One, Nunito } from "next/font/google";                                                                                                                            │
 import "./globals.css";
-import { Toaster } from "sonner";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { SessionProvider } from "@/components/site/_components/SessionProvider";
+import { Session } from "@/store/session-store"; // FIX 1: Added missing import
+import { Toaster } from "sonner"; 
 
 const paytoneOne = Paytone_One({
   variable: "--font-paytone-one",
@@ -20,18 +24,28 @@ export const metadata: Metadata = {
     "Moderno, bonito, inteligente. App For Barber, um app para Barbearias!!",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
+  const readonlyHeaders = await headers();
+  const mutableHeaders = new Headers(readonlyHeaders);
+
+  const session = await auth.api.getSession({
+    headers: mutableHeaders,
+  });
+
   return (
     <html lang="pt-BR">
       <body
         className={`${paytoneOne.variable} ${nunito.variable} font-nunito antialiased`}
       >
-        {children}
-        <Toaster richColors closeButton />
+        <SessionProvider session={session as Session}>
+          {children}
+          <Toaster richColors closeButton />
+        </SessionProvider>
       </body>
     </html>
   );
