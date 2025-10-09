@@ -24,6 +24,8 @@ import type { ServiceData as Service } from "@/schemas/service-schema";
 import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
+import { RoleGuard } from "@/components/auth";
+import { Role } from "@/generated/prisma";
 
 // Componente para o esqueleto de um item da lista
 function ServiceItemSkeleton() {
@@ -119,27 +121,28 @@ export default function ServiceList() {
                       {service.description}
                     </p>
                   </div>
+                  <RoleGuard roles={[Role.SUPER_ADMIN, Role.ADMIN]}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <EllipsisVertical className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(service)}>
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <EllipsisVertical className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEdit(service)}>
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => handleConfirmDelete(service)}
-                      >
-                        Excluir
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => handleConfirmDelete(service)}
+                        >
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </RoleGuard>
                 </div>
 
                 <div className="flex justify-between items-center">

@@ -244,3 +244,136 @@ const roleBasedRoutes = {
 1. Verifique se a API está usando `requireRole` ou `requireCompanyAccess`
 2. Verifique se o usuário tem a role necessária
 3. Verifique se o usuário pertence à empresa correta
+
+# Guia de Componentes de Autenticação
+
+## 🎯 **Quando Usar Cada Componente**
+
+### **1. RoleGuard**
+
+**Use quando**: Proteger conteúdo baseado em roles
+
+```tsx
+// ✅ Correto - Proteger seções inteiras
+<RoleGuard roles={[Role.ADMIN, Role.SUPER_ADMIN]}>
+  <div>Conteúdo administrativo</div>
+</RoleGuard>
+
+// ✅ Correto - Proteger componentes complexos
+<RoleGuard roles={[Role.ADMIN]}>
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button>Menu</Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>...</DropdownMenuContent>
+  </DropdownMenu>
+</RoleGuard>
+```
+
+### **2. PermissionGuard**
+
+**Use quando**: Proteger baseado em permissões específicas
+
+```tsx
+// ✅ Correto - Permissões granulares
+<PermissionGuard permission={PERMISSIONS.SERVICE_CREATE}>
+  <CreateServiceForm />
+</PermissionGuard>
+
+// ✅ Correto - Múltiplas permissões
+<PermissionGuard
+  permissions={[PERMISSIONS.USER_EDIT, PERMISSIONS.USER_DELETE]}
+  requireAll={false}
+>
+  <UserActions />
+</PermissionGuard>
+```
+
+### **3. ProtectedButton**
+
+**Use quando**: Botões simples que não contêm outros botões
+
+```tsx
+// ✅ Correto - Botão simples
+<ProtectedButton
+  permission={PERMISSIONS.SERVICE_CREATE}
+  onClick={handleCreate}
+>
+  Criar Serviço
+</ProtectedButton>
+
+// ❌ ERRADO - Botão que contém outro botão
+<ProtectedButton roles={[Role.ADMIN]}>
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button>Menu</Button> {/* ❌ Botão dentro de botão! */}
+    </DropdownMenuTrigger>
+  </DropdownMenu>
+</ProtectedButton>
+```
+
+### **4. PageGuard**
+
+**Use quando**: Proteger páginas inteiras
+
+```tsx
+// ✅ Correto - Proteção de página
+export default function AdminPage() {
+  return (
+    <PageGuard roles={[Role.ADMIN]} redirectTo="/login">
+      <div>Conteúdo da página admin</div>
+    </PageGuard>
+  );
+}
+```
+
+## ⚠️ **Problemas Comuns**
+
+### **1. Botão Dentro de Botão**
+
+```tsx
+// ❌ PROBLEMA: Hydration error
+<ProtectedButton>
+  <DropdownMenuTrigger asChild>
+    <Button /> {/* Botão dentro de botão */}
+  </DropdownMenuTrigger>
+</ProtectedButton>
+
+// ✅ SOLUÇÃO: Use RoleGuard
+<RoleGuard roles={[Role.ADMIN]}>
+  <DropdownMenuTrigger asChild>
+    <Button />
+  </DropdownMenuTrigger>
+</RoleGuard>
+```
+
+### **2. Proteção Desnecessária**
+
+```tsx
+// ❌ Redundante
+<RoleGuard roles={[Role.ADMIN]}>
+  <PermissionGuard permission={PERMISSIONS.ADMIN_ONLY}>
+    <AdminPanel />
+  </PermissionGuard>
+</RoleGuard>
+
+// ✅ Melhor - Use apenas um
+<PermissionGuard permission={PERMISSIONS.ADMIN_PANEL}>
+  <AdminPanel />
+</PermissionGuard>
+```
+
+## 🎯 **Regras de Ouro**
+
+1. **Hierarquia HTML**: Nunca coloque `<button>` dentro de `<button>`
+2. **Granularidade**: Use permissões para controle fino, roles para controle amplo
+3. **Performance**: Evite guards aninhados desnecessários
+4. **Fallbacks**: Sempre forneça feedback quando acesso é negado
+
+## 📋 **Checklist de Uso**
+
+- [ ] Verificar se não há botões aninhados
+- [ ] Escolher o guard mais apropriado (role vs permission)
+- [ ] Definir fallback adequado
+- [ ] Testar com diferentes roles
+- [ ] Verificar console para erros de hidratação
