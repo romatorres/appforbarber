@@ -41,4 +41,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# IDE/Editor configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
 /src/generated/prisma

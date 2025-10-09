@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Role } from "@/generated/prisma";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
+import { RoleGuard } from "@/components/auth";
 import {
   Home,
   Briefcase,
@@ -78,20 +79,26 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const pathname = usePathname();
   const collapsed = !open;
-  const { hasRole, user } = useAuth();
+  const { user } = useAuth();
 
   // Memoizar funções para evitar re-renders
-  const isActive = useCallback((path: string) => {
-    if (path === "/admin") return pathname === "/admin";
-    return pathname.startsWith(path);
-  }, [pathname]);
+  const isActive = useCallback(
+    (path: string) => {
+      if (path === "/admin") return pathname === "/admin";
+      return pathname.startsWith(path);
+    },
+    [pathname]
+  );
 
-  const getNavClass = useCallback((path: string) => {
-    const base = "transition-all duration-200 hover:bg-sidebar-accent";
-    return isActive(path)
-      ? `${base} bg-gray-1 text-sidebar-foreground hover:bg-gray-1`
-      : `${base} text-sidebar-foreground`;
-  }, [isActive]);
+  const getNavClass = useCallback(
+    (path: string) => {
+      const base = "transition-all duration-200 hover:bg-sidebar-accent";
+      return isActive(path)
+        ? `${base} bg-gray-1 text-sidebar-foreground hover:bg-gray-1`
+        : `${base} text-sidebar-foreground`;
+    },
+    [isActive]
+  );
 
   return (
     <Sidebar
@@ -141,7 +148,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Grupo Sistema (com submenu colapsável) */}
-        {hasRole([Role.SUPER_ADMIN, Role.ADMIN]) && (
+        <RoleGuard roles={[Role.SUPER_ADMIN, Role.ADMIN]}>
           <SidebarGroup className="mt-6">
             <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
               Sistema
@@ -196,7 +203,7 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
+        </RoleGuard>
       </SidebarContent>
 
       {/* ===== Footer ===== */}

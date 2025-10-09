@@ -2,7 +2,6 @@
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./Sidebar";
-import { useSessionSync } from "@/hooks/use-session-sync";
 import { ReactNode } from "react";
 import { Bell } from "lucide-react";
 
@@ -11,8 +10,7 @@ interface AdminLayoutClientProps {
 }
 
 export function AdminLayoutClient({ children }: AdminLayoutClientProps) {
-  // Sincronizar sessão do better-auth com Zustand
-  useSessionSync();
+  // A sessão já é sincronizada pelo AuthProvider no layout principal
 
   return (
     <SidebarProvider>

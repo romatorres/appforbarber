@@ -3,8 +3,7 @@ import { Paytone_One, Nunito } from "next/font/google";
 import "./globals.css";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { SessionProvider } from "@/components/site/_components/SessionProvider";
-import { Session } from "@/store/session-store"; // FIX 1: Added missing import
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Toaster } from "sonner";
 
 const paytoneOne = Paytone_One({
@@ -41,10 +40,10 @@ export default async function RootLayout({
       <body
         className={`${paytoneOne.variable} ${nunito.variable} font-nunito antialiased`}
       >
-        <SessionProvider session={session as Session}>
+        <AuthProvider initialSession={session}>
           {children}
           <Toaster richColors closeButton />
-        </SessionProvider>
+        </AuthProvider>
       </body>
     </html>
   );

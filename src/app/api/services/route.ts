@@ -1,64 +1,43 @@
-import { auth } from "@/lib/auth";
+import {
+  handleApiError,
+  requireCompanyAccess,
+  requireRole,
+} from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { Role } from "@/generated/prisma";
 
 // GET para buscar serviços da empresa logada
 export async function GET() {
-  const session = await auth.api.getSession({ headers: new Headers(await headers()) });
+  try {
+    const user = await requireCompanyAccess();
 
-  if (!session?.userId) {
-    return NextResponse.json({ message: "Não autorizado" }, { status: 401 });
+    const services = await prisma.service.findMany({
+      where: { companyId: user.companyId! },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json(services);
+  } catch (error) {
+    return handleApiError(error);
   }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { companyId: true },
-  });
-
-  if (!user?.companyId) {
-    return NextResponse.json(
-      { message: "Usuário não associado a uma empresa" },
-      { status: 400 }
-    );
-  }
-
-  const services = await prisma.service.findMany({
-    where: {
-      companyId: user.companyId, // Filtro de segurança
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json(services);
 }
 
 // POST para criar um serviço na empresa logada
 export async function POST(req: Request) {
-  const session = await auth.api.getSession({ headers: new Headers(await headers()) });
+  try {
+    const user = await requireRole([Role.SUPER_ADMIN, Role.ADMIN]);
+    const data = await req.json();
 
-  if (!session?.userId) {
-    return NextResponse.json({ message: "Não autorizado" }, { status: 401 });
+    const service = await prisma.service.create({
+      data: {
+        ...data,
+        companyId: user.companyId!,
+      },
+    });
+
+    return NextResponse.json(service);
+  } catch (error) {
+    return handleApiError(error);
   }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { companyId: true },
-  });
-
-  if (!user?.companyId) {
-    return NextResponse.json(
-      { message: "Usuário não associado a uma empresa" },
-      { status: 400 }
-    );
-  }
-
-  const data = await req.json();
-  const service = await prisma.service.create({
-    data: {
-      ...data,
-      companyId: user.companyId, // Usar o companyId do usuário da sessão
-    },
-  });
-  return NextResponse.json(service);
 }
