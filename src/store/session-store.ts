@@ -20,15 +20,22 @@ type SessionState = {
   session: Session;
   status: 'loading' | 'authenticated' | 'unauthenticated';
   setSession: (session: Session) => void;
+  clearSession: () => void;
 };
 
 export const useSessionStore = create<SessionState>((set) => ({
   session: null,
-  status: 'loading', // Começa como 'loading' até a sessão ser verificada
+  status: 'loading',
   setSession: (session) => {
     set({
       session,
       status: session ? 'authenticated' : 'unauthenticated',
+    });
+  },
+  clearSession: () => {
+    set({
+      session: null,
+      status: 'unauthenticated',
     });
   },
 }));

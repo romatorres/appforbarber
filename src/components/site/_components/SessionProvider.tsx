@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect } from "react";
 import { useSessionStore, Session } from "@/store/session-store";
+import { adaptBetterAuthSession } from "@/lib/session-adapter";
 
 interface SessionProviderProps {
   children: React.ReactNode;
@@ -10,13 +11,11 @@ interface SessionProviderProps {
 
 export function SessionProvider({ children, session }: SessionProviderProps) {
   const setSession = useSessionStore((state) => state.setSession);
-  const initialized = useRef(false);
 
-  // Usamos um ref para garantir que o store seja inicializado apenas uma vez
-  if (!initialized.current) {
-    setSession(session);
-    initialized.current = true;
-  }
+  useEffect(() => {
+    const adaptedSession = adaptBetterAuthSession(session);
+    setSession(adaptedSession);
+  }, [session, setSession]);
 
   return <>{children}</>;
 }

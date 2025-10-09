@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
+import { Role } from "@/generated/prisma";
 import { usePathname } from "next/navigation";
+import { useCallback } from "react";
 import {
   Home,
   Briefcase,
@@ -38,7 +41,6 @@ import {
   CollapsibleContent,
 } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { User as AuthUser } from "better-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,26 +74,24 @@ const configItems = [
   },
 ];
 
-interface AppSidebarProps {
-  user?: AuthUser;
-}
-
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar() {
   const { open } = useSidebar();
   const pathname = usePathname();
   const collapsed = !open;
+  const { hasRole, user } = useAuth();
 
-  const isActive = (path: string) => {
+  // Memoizar funções para evitar re-renders
+  const isActive = useCallback((path: string) => {
     if (path === "/admin") return pathname === "/admin";
     return pathname.startsWith(path);
-  };
+  }, [pathname]);
 
-  const getNavClass = (path: string) => {
+  const getNavClass = useCallback((path: string) => {
     const base = "transition-all duration-200 hover:bg-sidebar-accent";
     return isActive(path)
       ? `${base} bg-gray-1 text-sidebar-foreground hover:bg-gray-1`
       : `${base} text-sidebar-foreground`;
-  };
+  }, [isActive]);
 
   return (
     <Sidebar
@@ -141,60 +141,62 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </SidebarGroup>
 
         {/* Grupo Sistema (com submenu colapsável) */}
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
-            Sistema
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {configItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <Collapsible
-                    defaultOpen={false}
-                    className="group/collapsible"
-                  >
-                    {/* Botão principal do menu */}
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton className="mb-1 w-full flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <item.icon className="w-5 h-5 shrink-0" />
+        {hasRole([Role.SUPER_ADMIN, Role.ADMIN]) && (
+          <SidebarGroup className="mt-6">
+            <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+              Sistema
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {configItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <Collapsible
+                      defaultOpen={false}
+                      className="group/collapsible"
+                    >
+                      {/* Botão principal do menu */}
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton className="mb-1 w-full flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <item.icon className="w-5 h-5 shrink-0" />
+                            {!collapsed && (
+                              <span className="font-medium">{item.title}</span>
+                            )}
+                          </div>
+
                           {!collapsed && (
-                            <span className="font-medium">{item.title}</span>
+                            <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                           )}
-                        </div>
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
 
-                        {!collapsed && (
-                          <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                      {/* Submenu (visível só quando aberto) */}
+                      <CollapsibleContent>
+                        {!collapsed && item.submenu && (
+                          <SidebarMenuSub>
+                            {item.submenu.map((sub) => (
+                              <SidebarMenuSubItem key={sub.title}>
+                                <SidebarMenuSubButton asChild>
+                                  <Link
+                                    href={sub.url}
+                                    className={getNavClass(sub.url)}
+                                  >
+                                    <sub.icon className="w-4 h-4 shrink-0 !text-sidebar-foreground" />
+                                    <span>{sub.title}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
                         )}
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-
-                    {/* Submenu (visível só quando aberto) */}
-                    <CollapsibleContent>
-                      {!collapsed && item.submenu && (
-                        <SidebarMenuSub>
-                          {item.submenu.map((sub) => (
-                            <SidebarMenuSubItem key={sub.title}>
-                              <SidebarMenuSubButton asChild>
-                                <Link
-                                  href={sub.url}
-                                  className={getNavClass(sub.url)}
-                                >
-                                  <sub.icon className="w-4 h-4 shrink-0 !text-sidebar-foreground" />
-                                  <span>{sub.title}</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      )}
-                    </CollapsibleContent>
-                  </Collapsible>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       {/* ===== Footer ===== */}
