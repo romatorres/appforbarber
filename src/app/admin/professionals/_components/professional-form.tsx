@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   CreateProfessionalSchema,
   CreateProfessionalData,
@@ -14,98 +15,145 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-interface ServiceFormProps {
+// Create form-specific schemas that exclude fields not needed in the form
+const FormProfessionalSchema = CreateProfessionalSchema.omit({
+  startDate: true,
+});
+const FormUpdateProfessionalSchema = UpdateProfessionalSchema.omit({
+  startDate: true,
+});
+
+type FormProfessionalData = z.infer<typeof FormProfessionalSchema>;
+type FormUpdateProfessionalData = z.infer<typeof FormUpdateProfessionalSchema>;
+type FormProfessionalFormData =
+  | FormProfessionalData
+  | FormUpdateProfessionalData;
+
+interface ProfessionalFormProps {
   onSuccess?: () => void;
 }
 
-type ServiceFormData = CreateServiceData | UpdateServiceData;
-
-export default function ProfessionalForm({ onSuccess }: ServiceFormProps) {
-  const { createServices, selectedService, updateServices, selectService } =
-    useServiceStore();
+export default function ProfessionalForm({ onSuccess }: ProfessionalFormProps) {
+  const {
+    createProfessionals,
+    selectedProfessional,
+    updateProfessionals,
+    selectProfessional,
+  } = useProfessionalStore();
   const router = useRouter();
 
-  const isEdit = !!selectedService;
+  const isEdit = !!selectedProfessional;
 
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
-  } = useForm<ServiceFormData>({
-    resolver: zodResolver(isEdit ? UpdateServiceSchema : CreateServiceSchema),
+  } = useForm<FormProfessionalFormData>({
+    resolver: zodResolver(
+      isEdit ? FormUpdateProfessionalSchema : FormProfessionalSchema
+    ),
     defaultValues: {
       name: "",
-      description: "",
-      duration: 30,
-      price: 0,
-      active: true,
+      bio: "",
+      commissionRate: 0,
+      email: "",
+      phoneNumber: "",
+      specialties: "",
+      status: "ACTIVE",
     },
   });
 
   useEffect(() => {
-    if (selectedService) {
+    if (selectedProfessional) {
       reset({
-        name: selectedService.name,
-        description: selectedService.description,
-        duration: selectedService.duration,
-        price: selectedService.price,
-        active: selectedService.active,
+        name: selectedProfessional.name,
+        bio: selectedProfessional.bio,
+        commissionRate: selectedProfessional.commissionRate,
+        email: selectedProfessional.email,
+        phoneNumber: selectedProfessional.phoneNumber,
+        specialties: selectedProfessional.specialties,
+        status: selectedProfessional.status,
       });
     } else {
       reset({
         name: "",
-        description: "",
-        duration: 30,
-        price: 0,
-        active: true,
+        bio: "",
+        commissionRate: 0,
+        email: "",
+        phoneNumber: "",
+        specialties: "",
+        status: "ACTIVE",
       });
     }
-  }, [selectedService, reset]);
+  }, [selectedProfessional, reset]);
 
-  const onSubmit = async (data: ServiceFormData) => {
+  const onSubmit = async (data: FormProfessionalFormData) => {
     try {
-      if (selectedService) {
-        await updateServices(selectedService.id, data as UpdateServiceData);
+      if (selectedProfessional) {
+        // For update, only send the fields that are present in the form data
+        await updateProfessionals(
+          selectedProfessional.id,
+          data as UpdateProfessionalData
+        );
       } else {
-        await createServices(data as CreateServiceData);
+        // For create, we don't include fields not in the form as they will be set on the server
+        const createData: CreateProfessionalData = {
+          ...(data as FormProfessionalData),
+          startDate: new Date(), // Set the start date automatically
+        };
+        await createProfessionals(createData);
       }
 
       reset({
         name: "",
-        description: "",
-        duration: 30,
-        price: 0,
-        active: true,
+        bio: "",
+        commissionRate: 0,
+        email: "",
+        phoneNumber: "",
+        specialties: "",
+        status: "ACTIVE",
       });
-      selectService(null);
+      selectProfessional(null);
 
       // Chama callback de sucesso ou redireciona
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push("/services");
+        router.push("/professionals");
       }
     } catch (error) {
-      console.error("Erro ao salvar serviço:", error);
+      console.error("Erro ao salvar profissional:", error);
     }
   };
 
   const handleCancel = () => {
-    selectService(null);
+    selectProfessional(null);
     reset({
       name: "",
-      description: "",
-      duration: 30,
-      price: 0,
-      active: true,
+      bio: "",
+      commissionRate: 0,
+      email: "",
+      phoneNumber: "",
+      specialties: "",
+      status: "ACTIVE",
     });
 
     if (onSuccess) {
       onSuccess();
     } else {
-      router.push("/services");
+      router.push("/professionals");
     }
   };
 
@@ -113,10 +161,8 @@ export default function ProfessionalForm({ onSuccess }: ServiceFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Nome */}
       <div>
-        <label className="block text-sm text-gray-3 mb-1">
-          Nome do serviço
-        </label>
-        <Input {...register("name")} placeholder="Nome do serviço" />
+        <Label className="block mb-2">Nome do Profissional</Label>
+        <Input {...register("name")} placeholder="Nome do profissional" />
         {errors.name && (
           <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
         )}
@@ -124,73 +170,100 @@ export default function ProfessionalForm({ onSuccess }: ServiceFormProps) {
 
       {/* Descrição */}
       <div>
-        <label className="block text-sm text-gray-3 mb-1">
-          Descrição do serviço
-        </label>
+        <Label className="block mb-2">Biografia</Label>
         <Textarea
-          {...register("description")}
-          placeholder="Descrição do serviço"
+          {...register("bio")}
+          placeholder="Sobre o profissional"
           rows={3}
         />
-        {errors.description && (
+        {errors.bio && (
+          <p className="text-red-500 text-sm mt-1">{errors.bio.message}</p>
+        )}
+      </div>
+
+      {/* Email */}
+      <div>
+        <Label className="block mb-2">Email</Label>
+        <Input
+          {...register("email")}
+          placeholder="email@exemplo.com"
+          type="email"
+        />
+        {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+        )}
+      </div>
+
+      {/* Telefone */}
+      <div>
+        <Label className="block mb-2">Telefone</Label>
+        <Input {...register("phoneNumber")} placeholder="(00) 00000-0000" />
+        {errors.phoneNumber && (
           <p className="text-red-500 text-sm mt-1">
-            {errors.description.message}
+            {errors.phoneNumber.message}
           </p>
         )}
       </div>
 
-      {/* Duração e Preço */}
+      {/* Especialidades */}
+      <div>
+        <Label className="block mb-2">Especialidades</Label>
+        <Input
+          {...register("specialties")}
+          placeholder="Corte, Barba, Coloração, etc"
+        />
+        {errors.specialties && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.specialties.message}
+          </p>
+        )}
+      </div>
+
+      {/* Comissão */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-gray-3 mb-1">
-            Duração (minutos)
-          </label>
+          <Label className="block mb-2">Comissão (%)</Label>
           <Input
             type="number"
-            {...register("duration", { valueAsNumber: true })}
+            {...register("commissionRate", { valueAsNumber: true })}
             placeholder="30"
             step="5"
-            min="5"
+            min="0"
+            max="100"
           />
-          {errors.duration && (
+          {errors.commissionRate && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.duration.message}
+              {errors.commissionRate.message}
             </p>
           )}
         </div>
 
+        {/* Status */}
         <div>
-          <label className="block text-sm text-gray-3 mb-1">Preço (R$)</label>
-          <Input
-            type="number"
-            {...register("price", { valueAsNumber: true })}
-            placeholder="0.00"
-            step="0.01"
-            min="0"
+          <Label className="block mb-2">Status</Label>
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="ACTIVE">Ativo</SelectItem>
+                    <SelectItem value="INACTIVE">Inativo</SelectItem>
+                    <SelectItem value="ON_LEAVE">Em Licença</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
           />
-          {errors.price && (
-            <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
+          {errors.status && (
+            <p className="text-red-500 text-sm mt-1">{errors.status.message}</p>
           )}
         </div>
       </div>
-
-      {/* Status Ativo (apenas na edição) */}
-      {selectedService && (
-        <div className="flex items-center gap-2">
-          <Input
-            type="checkbox"
-            {...register("active")}
-            id="active"
-            className="w-4 h-4"
-          />
-          <label htmlFor="active" className="text-sm font-medium">
-            Serviço ativo
-          </label>
-          {errors.active && (
-            <p className="text-red-500 text-sm mt-1">{errors.active.message}</p>
-          )}
-        </div>
-      )}
 
       {/* Botões */}
       <div className="flex justify-end gap-3 pt-4">
@@ -200,9 +273,9 @@ export default function ProfessionalForm({ onSuccess }: ServiceFormProps) {
         <Button type="submit" disabled={isSubmitting} variant="default">
           {isSubmitting
             ? "Salvando..."
-            : selectedService
-            ? "Salvar"
-            : "Criar Serviço"}
+            : selectedProfessional
+            ? "Atualizar Profissional"
+            : "Criar Profissional"}
         </Button>
       </div>
     </form>

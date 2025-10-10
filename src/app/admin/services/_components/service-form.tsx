@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface ServiceFormProps {
   onSuccess?: () => void;
@@ -113,9 +114,7 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Nome */}
       <div>
-        <label className="block text-sm text-gray-3 mb-1">
-          Nome do serviço
-        </label>
+        <Label className="block mb-2">Nome do serviço</Label>
         <Input {...register("name")} placeholder="Nome do serviço" />
         {errors.name && (
           <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
@@ -124,9 +123,7 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
 
       {/* Descrição */}
       <div>
-        <label className="block text-sm text-gray-3 mb-1">
-          Descrição do serviço
-        </label>
+        <Label className="block mb-2">Descrição do serviço</Label>
         <Textarea
           {...register("description")}
           placeholder="Descrição do serviço"
@@ -142,9 +139,7 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
       {/* Duração e Preço */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-gray-3 mb-1">
-            Duração (minutos)
-          </label>
+          <Label className="block mb-2">Duração (minutos)</Label>
           <Input
             type="number"
             {...register("duration", { valueAsNumber: true })}
@@ -160,7 +155,7 @@ export default function ServiceForm({ onSuccess }: ServiceFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm text-gray-3 mb-1">Preço (R$)</label>
+          <Label className="block mb-2">Preço (R$)</Label>
           <Input
             type="number"
             {...register("price", { valueAsNumber: true })}

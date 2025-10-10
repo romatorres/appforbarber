@@ -1,5 +1,6 @@
 import { PageTitleAdmin } from "@/components/ui/page-title-admin";
 import ProfessionalList from "./professional-list";
+import ProfessionalForm from "./professional-form";
 
 export default function ProfessionalPage() {
   return (
@@ -9,6 +10,7 @@ export default function ProfessionalPage() {
         description="Gerencie os profissionais da sua empresa"
       ></PageTitleAdmin>
       <ProfessionalList />
+      <ProfessionalForm />
     </div>
   );
 }
