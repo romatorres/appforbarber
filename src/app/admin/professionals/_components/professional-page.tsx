@@ -1,14 +1,14 @@
 import { PageTitleAdmin } from "@/components/ui/page-title-admin";
-import ProfissionaisList from "./profissional-list";
+import ProfessionalList from "./professional-list";
 
-export default function ProfissionaisPage() {
+export default function ProfessionalPage() {
   return (
     <div className="container mx-auto sm:p-4 p-1 space-y-6">
       <PageTitleAdmin
         title="Profissionais"
         description="Gerencie os profissionais da sua empresa"
       ></PageTitleAdmin>
-      <ProfissionaisList />
+      <ProfessionalList />
     </div>
   );
 }

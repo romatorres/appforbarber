@@ -56,7 +56,7 @@ const mainItems = [
   { title: "Home", url: "/admin", icon: Home },
   { title: "Agendamentos", url: "/admin/agendamentos", icon: Calendar },
   { title: "Serviços", url: "/admin/services", icon: Briefcase },
-  { title: "Profissionais", url: "/admin/profissionais", icon: Users },
+  { title: "Profissionais", url: "/admin/professionals", icon: Users },
   { title: "Relatórios", url: "/admin/relatorios", icon: BarChart3 },
   { title: "Fechamento", url: "/admin/fechamento", icon: DollarSign },
 ];
