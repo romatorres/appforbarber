@@ -24,8 +24,8 @@ import type { ServiceData as Service } from "@/schemas/service-schema";
 import { formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
-import { RoleGuard } from "@/components/auth";
-import { Role } from "@/generated/prisma";
+import { PermissionGuard } from "@/components/auth";
+import { PERMISSIONS } from "@/lib/permissions";
 
 // Componente para o esqueleto de um item da lista
 function ServiceItemSkeleton() {
@@ -121,7 +121,12 @@ export default function ServiceList() {
                       {service.description}
                     </p>
                   </div>
-                  <RoleGuard roles={[Role.SUPER_ADMIN, Role.ADMIN]}>
+                  <PermissionGuard
+                    permissions={[
+                      PERMISSIONS.SERVICE_DELETE,
+                      PERMISSIONS.SERVICE_EDIT,
+                    ]}
+                  >
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -142,7 +147,7 @@ export default function ServiceList() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </RoleGuard>
+                  </PermissionGuard>
                 </div>
 
                 <div className="flex justify-between items-center">

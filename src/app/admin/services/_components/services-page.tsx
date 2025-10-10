@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
   Dialog,
@@ -15,6 +14,8 @@ import ServiceForm from "./service-form";
 import { useServiceStore } from "@/store/service-store";
 import { PageTitleAdmin } from "@/components/ui/page-title-admin";
 import { ServiceData } from "@/schemas/service-schema";
+import { ProtectedButton } from "@/components/auth/ProtectedButton";
+import { PERMISSIONS } from "@/lib/permissions";
 
 interface ServicesClientPageProps {
   initialServices: ServiceData[];
@@ -51,13 +52,15 @@ export default function ServicesClientPage({
         dialog={
           <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-              <Button
-                className="flex items-center gap-2 w-full sm:w-auto justify-center"
+              <ProtectedButton
+                permission={PERMISSIONS.SERVICE_CREATE}
+                className="flex items-center gap-2 w-full sm:w-auto
+                justify-center"
                 onClick={() => setIsDialogOpen(true)}
               >
                 <Plus className="h-4 w-4" />
                 Serviço
-              </Button>
+              </ProtectedButton>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
