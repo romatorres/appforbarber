@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import ServicesClientPage from "./_components/services-page";
+import ServicesClientPage from "./_components/service-page";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
