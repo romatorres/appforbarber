@@ -14,35 +14,44 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
   const setSession = useSessionStore((state) => state.setSession);
 
   useEffect(() => {
+    let isMounted = true;
+
     // Função para atualizar a sessão no store
     const updateSession = async () => {
       try {
-        // Sempre buscar do cliente primeiro (mais confiável)
+        // 1. Se temos sessão inicial do servidor, use ela IMEDIATAMENTE para evitar delay
+        if (initialSession && isMounted) {
+          const adaptedSession = adaptBetterAuthSession(initialSession);
+          if (adaptedSession) {
+            setSession(adaptedSession);
+          }
+        }
+
+        // 2. Depois, sincronize com o cliente em background (sem bloquear UI)
         const { data: clientSession } = await authClient.getSession();
+
+        if (!isMounted) return; // Componente foi desmontado
+
         const adaptedClientSession = adaptBetterAuthSession(clientSession);
 
-        // Se conseguiu dados do cliente, use eles
+        // Só atualize se os dados do cliente forem diferentes ou se não tínhamos sessão inicial
         if (adaptedClientSession) {
           setSession(adaptedClientSession);
-          return;
+        } else if (!initialSession) {
+          // Só limpe se não havia sessão inicial
+          setSession(null);
         }
-
-        // Se não tem dados do cliente, tente a sessão inicial do servidor
-        if (initialSession) {
-          const adaptedSession = adaptBetterAuthSession(initialSession);
-          setSession(adaptedSession);
-          return;
-        }
-
-        // Se não tem nenhuma sessão válida, limpe o store
-        setSession(null);
       } catch (error) {
         console.error("Erro ao sincronizar sessão:", error);
 
-        // Em caso de erro, tente usar a sessão inicial como fallback
+        if (!isMounted) return;
+
+        // Em caso de erro, mantenha a sessão inicial se existir
         if (initialSession) {
           const adaptedSession = adaptBetterAuthSession(initialSession);
-          setSession(adaptedSession);
+          if (adaptedSession) {
+            setSession(adaptedSession);
+          }
         } else {
           setSession(null);
         }
@@ -52,11 +61,21 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     // Atualizar sessão imediatamente
     updateSession();
 
-    // Escutar eventos de foco da janela para re-sincronizar
-    const handleFocus = () => updateSession();
+    // Escutar eventos de foco da janela para re-sincronizar (com debounce)
+    let focusTimeout: NodeJS.Timeout;
+    const handleFocus = () => {
+      clearTimeout(focusTimeout);
+      focusTimeout = setTimeout(() => {
+        if (isMounted) updateSession();
+      }, 100);
+    };
+
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        updateSession();
+      if (!document.hidden && isMounted) {
+        clearTimeout(focusTimeout);
+        focusTimeout = setTimeout(() => {
+          if (isMounted) updateSession();
+        }, 100);
       }
     };
 
@@ -64,6 +83,8 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
+      isMounted = false;
+      clearTimeout(focusTimeout);
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };

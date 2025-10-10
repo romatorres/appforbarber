@@ -6,6 +6,7 @@ import { Role } from "@/generated/prisma";
 import { usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { RoleGuard } from "@/components/auth";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   Home,
   Briefcase,
@@ -79,7 +80,7 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const pathname = usePathname();
   const collapsed = !open;
-  const { user } = useAuth();
+  const { user, isLoading, userRoleTranslated } = useAuth();
 
   // Memoizar funções para evitar re-renders
   const isActive = useCallback(
@@ -208,42 +209,55 @@ export function AppSidebar() {
 
       {/* ===== Footer ===== */}
       <SidebarFooter className="border-t border-sidebar-border p-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            {collapsed ? (
-              <div className="flex items-center justify-center w-full cursor-pointer">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src={user?.image ?? ""} />
-                  <AvatarFallback>{user?.name?.[0] ?? "U"}</AvatarFallback>
-                </Avatar>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-1/80 duration-200 p-2 rounded-md">
-                <div className="flex items-center gap-3 min-w-0">
+        {isLoading ? (
+          // Estado de loading
+          <div className="flex items-center justify-center p-4">
+            <LoadingSpinner size="sm" />
+            {!collapsed && (
+              <span className="ml-2 text-sm text-muted-foreground">
+                Carregando...
+              </span>
+            )}
+          </div>
+        ) : (
+          // Estado normal com usuário
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              {collapsed ? (
+                <div className="flex items-center justify-center w-full cursor-pointer">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={user?.image ?? ""} />
                     <AvatarFallback>{user?.name?.[0] ?? "U"}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {user?.name ?? "Usuário"}
-                    </p>
-                    <p className="text-xs truncate">
-                      {user?.email ?? "email@exemplo.com"}
-                    </p>
-                  </div>
                 </div>
-                <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-60" />
-              </div>
-            )}
-          </DropdownMenuTrigger>
+              ) : (
+                <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-1/80 duration-200 p-2 rounded-md">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={user?.image ?? ""} />
+                      <AvatarFallback>{user?.name?.[0] ?? "U"}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {user?.name ?? "Usuário"}
+                      </p>
+                      <p className="text-xs text-gray-3 truncate">
+                        {userRoleTranslated ?? "Carregando..."}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-60" />
+                </div>
+              )}
+            </DropdownMenuTrigger>
 
-          <DropdownMenuContent side="top" className="w-52">
-            <DropdownMenuItem className="p-0">
-              <Logout />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <DropdownMenuContent side="top" className="w-52">
+              <DropdownMenuItem className="p-0">
+                <Logout />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

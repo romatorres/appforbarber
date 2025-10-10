@@ -1,13 +1,19 @@
 import { useSessionStore } from "@/store/session-store";
 import { Role } from "@/generated/prisma";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import { translateRole } from "@/lib/role-translations";
 
 export const useAuth = () => {
-  // Usar seletores separados para evitar problemas de shallow
+  // Usar seletores otimizados para evitar re-renders desnecessários
   const session = useSessionStore((state) => state.session);
   const status = useSessionStore((state) => state.status);
 
   const user = session?.user;
+
+  // Role traduzida para português
+  const userRoleTranslated = useMemo(() => {
+    return user?.role ? translateRole(user.role) : null;
+  }, [user?.role]);
 
   /**
    * Verifica se o usuário logado possui uma das roles permitidas.
@@ -25,7 +31,7 @@ export const useAuth = () => {
         : [allowedRoles];
       return rolesToCheck.includes(user.role);
     },
-    [user],
+    [user]
   );
 
   return {
@@ -33,6 +39,8 @@ export const useAuth = () => {
     session,
     status,
     hasRole,
+    userRole: user?.role,
+    userRoleTranslated,
     isAuthenticated: status === "authenticated",
     isLoading: status === "loading",
   };
