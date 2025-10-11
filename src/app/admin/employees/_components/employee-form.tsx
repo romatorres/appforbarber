@@ -303,7 +303,7 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         </div>
 
         {/* Acesso ao Sistema - apenas para criação */}
-        {!isEdit && (
+        {isEdit && (
           <>
             <Separator />
             <div className="space-y-4">

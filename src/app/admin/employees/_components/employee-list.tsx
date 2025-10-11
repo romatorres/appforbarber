@@ -18,14 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import {
-  Mail,
-  Phone,
-  EllipsisVertical,
-  User,
-  Shield,
-  ShieldOff,
-} from "lucide-react";
+import { Mail, Phone, EllipsisVertical, User, Shield } from "lucide-react";
 import { useEmployeeStore } from "@/store/employee-store";
 import type { EmployeeWithUser } from "@/schemas/employee-schema";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -66,7 +59,6 @@ export default function EmployeeList() {
     selectedEmployee,
     deleteEmployee,
     selectEmployee,
-    toggleSystemAccess,
   } = useEmployeeStore();
   const [employeeToDelete, setEmployeeToDelete] =
     useState<EmployeeWithUser | null>(null);
@@ -90,14 +82,6 @@ export default function EmployeeList() {
 
   const handleEdit = (employee: EmployeeWithUser) => {
     selectEmployee(employee);
-  };
-
-  const handleToggleAccess = async (employee: EmployeeWithUser) => {
-    try {
-      await toggleSystemAccess(employee.id, !employee.hasSystemAccess);
-    } catch (error) {
-      console.error("Erro ao alterar acesso:", error);
-    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -128,8 +112,8 @@ export default function EmployeeList() {
   if (employees.length === 0) {
     return (
       <Card>
-        <CardContent className="p-8 text-center text-gray-500">
-          <User className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+        <CardContent className="p-8 text-center text-gray-3">
+          <User className="h-12 w-12 mx-auto mb-4 text-gray-3" />
           <p className="text-lg font-medium mb-2">
             Nenhum funcionário cadastrado
           </p>
@@ -164,23 +148,21 @@ export default function EmployeeList() {
                       )}
                     </div>
 
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <div className="space-y-1 text-sm text-gray-4">
                       <div className="flex items-center gap-2">
-                        <Mail className="h-3 w-3" />
+                        <Mail className="h-3 w-3 text-gray-3" />
                         <span>{employee.email}</span>
                       </div>
                       {employee.phoneNumber && (
                         <div className="flex items-center gap-2">
-                          <Phone className="h-3 w-3" />
+                          <Phone className="h-3 w-3 text-gray-3" />
                           <span>{employee.phoneNumber}</span>
                         </div>
                       )}
                     </div>
 
                     {employee.bio && (
-                      <p className="text-sm text-gray-500 mt-2">
-                        {employee.bio}
-                      </p>
+                      <p className="text-sm text-gray-4 mt-2">{employee.bio}</p>
                     )}
                   </div>
 
@@ -200,23 +182,6 @@ export default function EmployeeList() {
                         <DropdownMenuItem onClick={() => handleEdit(employee)}>
                           Editar
                         </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onClick={() => handleToggleAccess(employee)}
-                        >
-                          {employee.hasSystemAccess ? (
-                            <>
-                              <ShieldOff className="h-4 w-4 mr-2" />
-                              Remover Acesso
-                            </>
-                          ) : (
-                            <>
-                              <Shield className="h-4 w-4 mr-2" />
-                              Conceder Acesso
-                            </>
-                          )}
-                        </DropdownMenuItem>
-
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"
@@ -232,15 +197,17 @@ export default function EmployeeList() {
                 <div className="flex justify-between items-center">
                   <div className="flex md:items-center items-start md:gap-4 gap-2.5 md:flex-row flex-col">
                     <div className="text-sm">
-                      <span className="text-gray-500">Comissão:</span>
-                      <span className="font-semibold ml-1">
+                      <span className="text-gray-3">Comissão:</span>
+                      <span className="font-semibold ml-1 text-gray-4">
                         {employee.commissionRate}%
                       </span>
                     </div>
                     {employee.specialties && (
                       <div className="text-sm">
-                        <span className="text-gray-500">Especialidades:</span>
-                        <span className="ml-1">{employee.specialties}</span>
+                        <span className="text-gray-3">Especialidades:</span>
+                        <span className="font-semibold ml-1 text-gray-4">
+                          {employee.specialties}
+                        </span>
                       </div>
                     )}
                   </div>

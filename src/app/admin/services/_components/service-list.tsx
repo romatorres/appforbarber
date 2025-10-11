@@ -93,7 +93,7 @@ export default function ServiceList() {
   // Após o carregamento, se não houver serviços
   if (services.length === 0) {
     return (
-      <CardContent className="p-4 text-center text-gray-2">
+      <CardContent className="p-4 text-center text-gray-3">
         Nenhum serviço cadastrado
       </CardContent>
     );
@@ -116,8 +116,10 @@ export default function ServiceList() {
               <div className="space-y-3">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{service.name}</h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h3 className="font-semibold text-lg text-gray-5">
+                      {service.name}
+                    </h3>
+                    <p className="text-sm text-gray-4 mt-1">
                       {service.description}
                     </p>
                   </div>
@@ -153,14 +155,14 @@ export default function ServiceList() {
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-4 sm:gap-6">
                     <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-gray-400" />
-                      <p className="text-gray-600 font-bold">
+                      <DollarSign className="h-4 w-4 text-gray-3" />
+                      <p className="text-gray-4 font-bold">
                         {formatCurrency(service.price)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-400" />
-                      <p className="text-gray-600 font-semibold">
+                      <Clock className="h-4 w-4 text-gray-3" />
+                      <p className="text-gray-4 font-semibold">
                         {service.duration} min
                       </p>
                     </div>
