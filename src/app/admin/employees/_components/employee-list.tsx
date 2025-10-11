@@ -18,7 +18,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, EllipsisVertical, User, Shield, ShieldOff } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  EllipsisVertical,
+  User,
+  Shield,
+  ShieldOff,
+} from "lucide-react";
 import { useEmployeeStore } from "@/store/employee-store";
 import type { EmployeeWithUser } from "@/schemas/employee-schema";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,7 +68,8 @@ export default function EmployeeList() {
     selectEmployee,
     toggleSystemAccess,
   } = useEmployeeStore();
-  const [employeeToDelete, setEmployeeToDelete] = useState<EmployeeWithUser | null>(null);
+  const [employeeToDelete, setEmployeeToDelete] =
+    useState<EmployeeWithUser | null>(null);
 
   const handleDelete = async (employee: EmployeeWithUser) => {
     try {
@@ -122,8 +130,12 @@ export default function EmployeeList() {
       <Card>
         <CardContent className="p-8 text-center text-gray-500">
           <User className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-          <p className="text-lg font-medium mb-2">Nenhum funcionário cadastrado</p>
-          <p className="text-sm">Comece adicionando o primeiro funcionário da sua empresa.</p>
+          <p className="text-lg font-medium mb-2">
+            Nenhum funcionário cadastrado
+          </p>
+          <p className="text-sm">
+            Comece adicionando o primeiro funcionário da sua empresa.
+          </p>
         </CardContent>
       </Card>
     );
@@ -151,7 +163,7 @@ export default function EmployeeList() {
                         <Shield className="h-4 w-4 text-green-600" />
                       )}
                     </div>
-                    
+
                     <div className="space-y-1 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
                         <Mail className="h-3 w-3" />
@@ -166,7 +178,9 @@ export default function EmployeeList() {
                     </div>
 
                     {employee.bio && (
-                      <p className="text-sm text-gray-500 mt-2">{employee.bio}</p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        {employee.bio}
+                      </p>
                     )}
                   </div>
 
@@ -186,8 +200,10 @@ export default function EmployeeList() {
                         <DropdownMenuItem onClick={() => handleEdit(employee)}>
                           Editar
                         </DropdownMenuItem>
-                        
-                        <DropdownMenuItem onClick={() => handleToggleAccess(employee)}>
+
+                        <DropdownMenuItem
+                          onClick={() => handleToggleAccess(employee)}
+                        >
                           {employee.hasSystemAccess ? (
                             <>
                               <ShieldOff className="h-4 w-4 mr-2" />
@@ -200,7 +216,7 @@ export default function EmployeeList() {
                             </>
                           )}
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"
@@ -214,10 +230,12 @@ export default function EmployeeList() {
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-4">
+                  <div className="flex md:items-center items-start md:gap-4 gap-2.5 md:flex-row flex-col">
                     <div className="text-sm">
                       <span className="text-gray-500">Comissão:</span>
-                      <span className="font-semibold ml-1">{employee.commissionRate}%</span>
+                      <span className="font-semibold ml-1">
+                        {employee.commissionRate}%
+                      </span>
                     </div>
                     {employee.specialties && (
                       <div className="text-sm">
@@ -226,7 +244,7 @@ export default function EmployeeList() {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     {getStatusBadge(employee.status)}
                     {employee.user && (
@@ -249,8 +267,8 @@ export default function EmployeeList() {
             <DialogTitle>Confirmar exclusão</DialogTitle>
             <DialogDescription>
               Tem certeza que deseja excluir o funcionário{" "}
-              <span className="font-bold">{employeeToDelete?.name}?</span>{" "}
-              Esta ação não pode ser desfeita.
+              <span className="font-bold">{employeeToDelete?.name}?</span> Esta
+              ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

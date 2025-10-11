@@ -60,7 +60,7 @@ export default function EmployeesClientPage({
                 onClick={() => setIsDialogOpen(true)}
               >
                 <Plus className="h-4 w-4" />
-                Novo Funcionário
+                Funcionário
               </ProtectedButton>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">

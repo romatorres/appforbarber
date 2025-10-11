@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CreateEmployeeSchema,
@@ -28,17 +28,22 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Shield, User, Mail } from "lucide-react";
+import { Shield, Mail } from "lucide-react";
 
 interface EmployeeFormProps {
   onSuccess?: () => void;
 }
+
+// Tipo de união para os dados do formulário
+type EmployeeFormData =
+  | CreateEmployeeData
+  | UpdateEmployeeData
+  | InviteEmployeeData;
 
 export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
   const {
@@ -69,7 +74,7 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
       specialties: "",
       status: "ACTIVE" as const,
       hasSystemAccess: false,
-      ...(sendInvite && { 
+      ...(sendInvite && {
         sendInvite: false,
         temporaryPassword: "",
       }),
@@ -96,7 +101,7 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         email: "",
         phoneNumber: "",
         bio: "",
-        commissionRate: 50,
+        commissionRate: 30,
         specialties: "",
         status: "ACTIVE",
         hasSystemAccess: false,
@@ -105,7 +110,7 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
     }
   }, [selectedEmployee, form]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: EmployeeFormData) => {
     try {
       if (isEdit && selectedEmployee) {
         // Atualizar funcionário existente
@@ -122,23 +127,19 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         await updateEmployee(selectedEmployee.id, updateData);
       } else {
         // Criar novo funcionário
-        if (sendInvite) {
+        if (sendInvite && "sendInvite" in data) {
           // Criar com convite
-          const inviteData: InviteEmployeeData = {
-            ...data,
-            sendInvite: true,
-          };
-          await inviteEmployee(inviteData);
+          await inviteEmployee(data as InviteEmployeeData);
         } else {
           // Criar simples
           const createData: CreateEmployeeData = {
-            name: data.name,
-            email: data.email,
+            name: data.name || "",
+            email: data.email || "",
             phoneNumber: data.phoneNumber,
             bio: data.bio,
-            commissionRate: data.commissionRate,
+            commissionRate: data.commissionRate || 30,
             specialties: data.specialties,
-            status: data.status,
+            status: data.status || "ACTIVE",
             hasSystemAccess: false,
             startDate: new Date(),
           };
@@ -168,11 +169,6 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Informações Básicas */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            <h3 className="text-sm font-medium">Informações Pessoais</h3>
-          </div>
-
           <FormField
             control={form.control}
             name="name"
@@ -195,10 +191,10 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
                 <FormItem>
                   <FormLabel>Email *</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="email" 
-                      placeholder="funcionario@empresa.com" 
-                      {...field} 
+                    <Input
+                      type="email"
+                      placeholder="funcionario@empresa.com"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -228,10 +224,10 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
               <FormItem>
                 <FormLabel>Biografia</FormLabel>
                 <FormControl>
-                  <Textarea 
+                  <Textarea
                     placeholder="Breve descrição sobre o funcionário..."
                     rows={3}
-                    {...field} 
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -240,12 +236,8 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
           />
         </div>
 
-        <Separator />
-
         {/* Informações Profissionais */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium">Informações Profissionais</h3>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -254,18 +246,15 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
                 <FormItem>
                   <FormLabel>Taxa de Comissão (%)</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      min="0" 
-                      max="100" 
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
                       step="5"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Percentual de comissão sobre os serviços
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -302,14 +291,11 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
               <FormItem>
                 <FormLabel>Especialidades</FormLabel>
                 <FormControl>
-                  <Input 
+                  <Input
                     placeholder="Ex: Corte masculino, Barba, Coloração..."
-                    {...field} 
+                    {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  Separe as especialidades por vírgula
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -322,11 +308,11 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
             <Separator />
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                <h3 className="text-sm font-medium">Acesso ao Sistema</h3>
+                <Shield className="h-5 w-5" />
+                <h3 className="text-md font-medium">Acesso ao Sistema</h3>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-start space-x-2">
                 <Checkbox
                   id="sendInvite"
                   checked={sendInvite}
@@ -342,21 +328,23 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
                   >
                     Conceder acesso ao sistema
                   </Label>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-gray-3">
                     O funcionário poderá fazer login e usar o sistema
                   </p>
                 </div>
               </div>
 
               {sendInvite && (
-                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-2 text-blue-700">
+                <div className="p-3 bg-gray-1 rounded-lg border border-gray-2">
+                  <div className="flex items-center gap-2 text-foreground">
                     <Mail className="h-4 w-4" />
-                    <span className="text-sm font-medium">Convite por Email</span>
+                    <span className="text-sm font-medium">
+                      Convite por Email
+                    </span>
                   </div>
-                  <p className="text-xs text-blue-600 mt-1">
-                    Um convite será enviado por email com as credenciais de acesso.
-                    Uma senha temporária será gerada automaticamente.
+                  <p className="text-xs text-gray-4 mt-1">
+                    Um convite será enviado por email com as credenciais de
+                    acesso. Uma senha temporária será gerada automaticamente.
                   </p>
                 </div>
               )}
@@ -370,15 +358,13 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
             Cancelar
           </Button>
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? (
-              "Salvando..."
-            ) : isEdit ? (
-              "Atualizar Funcionário"
-            ) : sendInvite ? (
-              "Criar e Enviar Convite"
-            ) : (
-              "Criar Funcionário"
-            )}
+            {form.formState.isSubmitting
+              ? "Salvando..."
+              : isEdit
+              ? "Atualizar Funcionário"
+              : sendInvite
+              ? "Criar e Enviar Convite"
+              : "Criar Funcionário"}
           </Button>
         </div>
       </form>
