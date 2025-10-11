@@ -3,12 +3,12 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
-import ProfessionalsClientPage from "./_components/professional-page";
+import EmployeesClientPage from "./_components/employee-page";
 
 // Revalidate this page every 60 seconds
 export const revalidate = 60;
 
-export default async function ProfessionalsPage() {
+export default async function EmployeesPage() {
   const session = await auth.api.getSession({
     headers: new Headers(await headers()),
   });
@@ -25,19 +25,30 @@ export default async function ProfessionalsPage() {
   // Se o usuário não tiver uma empresa, retorna uma lista vazia.
   if (!user?.companyId) {
     toast.error(
-      "Usuário sem empresa associada tentou acessar a página de profissionais."
+      "Usuário sem empresa associada tentou acessar a página de funcionários."
     );
-    return <ProfessionalsClientPage initialProfessional={[]} />;
+    return <EmployeesClientPage initialEmployees={[]} />;
   }
 
-  const professional = await prisma.employee.findMany({
+  const employees = await prisma.employee.findMany({
     where: {
       companyId: user.companyId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          emailVerified: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
-  return <ProfessionalsClientPage initialProfessional={professional} />;
+  return <EmployeesClientPage initialEmployees={employees} />;
 }

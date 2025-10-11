@@ -201,6 +201,9 @@ model Employee {
   bio            String?
   startDate      DateTime @default(now())
   status         String   @default("ACTIVE") // ACTIVE, INACTIVE, ON_LEAVE
+  
+  // Controle de acesso ao sistema
+  hasSystemAccess Boolean @default(false) // Se o funcionário pode acessar o sistema
 
   // Relações
   appointments   Appointment[]

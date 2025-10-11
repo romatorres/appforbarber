@@ -9,79 +9,79 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
-import ProfessionalList from "./professional-list";
-import ProfessionalForm from "./professional-form";
-import { useProfessionalStore } from "@/store/professional-store";
+import EmployeeList from "./employee-list";
+import EmployeeForm from "./employee-form";
+import { useEmployeeStore } from "@/store/employee-store";
 import { PageTitleAdmin } from "@/components/ui/page-title-admin";
-import { ProfessionalData } from "@/schemas/professional-schema";
+import { EmployeeWithUser } from "@/schemas/employee-schema";
 import { ProtectedButton } from "@/components/auth/ProtectedButton";
 import { PERMISSIONS } from "@/lib/permissions";
 
-interface ProfessionalsClientPageProps {
-  initialProfessional?: ProfessionalData[];
+interface EmployeesClientPageProps {
+  initialEmployees?: EmployeeWithUser[];
 }
 
-export default function ProfessionalsClientPage({
-  initialProfessional,
-}: ProfessionalsClientPageProps) {
+export default function EmployeesClientPage({
+  initialEmployees,
+}: EmployeesClientPageProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { selectedProfessional, selectProfessional, setProfessionals } =
-    useProfessionalStore();
+  const { selectedEmployee, selectEmployee, setEmployees } = useEmployeeStore();
 
   useEffect(() => {
     // Hidrata o store com os dados iniciais do servidor
-    setProfessionals(initialProfessional);
-  }, [initialProfessional, setProfessionals]);
+    if (initialEmployees) {
+      setEmployees(initialEmployees);
+    }
+  }, [initialEmployees, setEmployees]);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       setIsDialogOpen(false);
-      selectProfessional(null);
+      selectEmployee(null);
     } else {
       setIsDialogOpen(true);
     }
   };
 
-  const isEditing = !!selectedProfessional;
+  const isEditing = !!selectedEmployee;
   const dialogOpen = isDialogOpen || isEditing;
 
   return (
     <div className="container mx-auto sm:p-4 p-1 space-y-6">
       <PageTitleAdmin
-        title="Profissionais"
-        description="Gerencie os profissionais da sua empresa"
+        title="Funcionários"
+        description="Gerencie os funcionários da sua empresa"
         dialog={
           <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
               <ProtectedButton
                 permission={PERMISSIONS.EMPLOYEE_CREATE}
-                className="flex items-center gap-2 w-full sm:w-auto
-                justify-center"
+                className="flex items-center gap-2 w-full sm:w-auto justify-center"
                 onClick={() => setIsDialogOpen(true)}
               >
                 <Plus className="h-4 w-4" />
-                Profissionais
+                Novo Funcionário
               </ProtectedButton>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>
                   {isEditing
-                    ? "Editar Profissional"
-                    : "Criar Novo Profissional"}
+                    ? "Editar Funcionário"
+                    : "Cadastrar Novo Funcionário"}
                 </DialogTitle>
               </DialogHeader>
-              <ProfessionalForm
+              <EmployeeForm
                 onSuccess={() => {
                   setIsDialogOpen(false);
-                  selectProfessional(null);
+                  selectEmployee(null);
                 }}
               />
             </DialogContent>
           </Dialog>
         }
       />
-      <ProfessionalList />
+      <EmployeeList />
     </div>
   );
 }
