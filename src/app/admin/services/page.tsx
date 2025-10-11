@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import ServicesClientPage from "./_components/service-page";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
+import ServicesClientPage from "./_components/service-page";
 
 // Revalidate this page every 60 seconds
 export const revalidate = 60;

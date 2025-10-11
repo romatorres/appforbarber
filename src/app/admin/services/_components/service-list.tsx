@@ -93,7 +93,7 @@ export default function ServiceList() {
   // Após o carregamento, se não houver serviços
   if (services.length === 0) {
     return (
-      <CardContent className="p-4 text-center text-gray-300">
+      <CardContent className="p-4 text-center text-gray-2">
         Nenhum serviço cadastrado
       </CardContent>
     );
