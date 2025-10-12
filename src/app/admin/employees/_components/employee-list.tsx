@@ -18,13 +18,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, EllipsisVertical, User, Shield } from "lucide-react";
+import { Mail, Phone, EllipsisVertical, User, Shield, ShieldOff } from "lucide-react";
 import { useEmployeeStore } from "@/store/employee-store";
 import type { EmployeeWithUser } from "@/schemas/employee-schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { PermissionGuard } from "@/components/auth";
 import { PERMISSIONS } from "@/lib/permissions";
+import { toast } from "sonner";
 
 // Componente para o esqueleto de um item da lista
 function EmployeeItemSkeleton() {
@@ -59,6 +60,7 @@ export default function EmployeeList() {
     selectedEmployee,
     deleteEmployee,
     selectEmployee,
+    toggleSystemAccess,
   } = useEmployeeStore();
   const [employeeToDelete, setEmployeeToDelete] =
     useState<EmployeeWithUser | null>(null);
@@ -82,6 +84,32 @@ export default function EmployeeList() {
 
   const handleEdit = (employee: EmployeeWithUser) => {
     selectEmployee(employee);
+  };
+
+  const handleToggleAccess = async (employee: EmployeeWithUser) => {
+    try {
+      await toggleSystemAccess(employee.id, !employee.hasSystemAccess);
+    } catch (error) {
+      console.error("Erro ao alterar acesso:", error);
+    }
+  };
+
+  const handleResendInvite = async (employee: EmployeeWithUser) => {
+    try {
+      const response = await fetch(`/api/employees/${employee.id}/resend-invite`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        toast.success("Convite reenviado com sucesso!");
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "Erro ao reenviar convite");
+      }
+    } catch (error) {
+      console.error("Erro ao reenviar convite:", error);
+      toast.error("Erro ao reenviar convite");
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -182,6 +210,28 @@ export default function EmployeeList() {
                         <DropdownMenuItem onClick={() => handleEdit(employee)}>
                           Editar
                         </DropdownMenuItem>
+                        
+                        <DropdownMenuItem onClick={() => handleToggleAccess(employee)}>
+                          {employee.hasSystemAccess ? (
+                            <>
+                              <ShieldOff className="h-4 w-4 mr-2" />
+                              Remover Acesso
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="h-4 w-4 mr-2" />
+                              Conceder Acesso
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        
+                        {employee.hasSystemAccess && (
+                          <DropdownMenuItem onClick={() => handleResendInvite(employee)}>
+                            <Mail className="h-4 w-4 mr-2" />
+                            Reenviar Convite
+                          </DropdownMenuItem>
+                        )}
+                        
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"

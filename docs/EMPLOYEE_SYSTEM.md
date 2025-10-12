@@ -2,7 +2,7 @@
 
 ## 📋 Visão Geral
 
-O Sistema de Funcionários é um módulo completo para gerenciamento de colaboradores da empresa, oferecendo controle granular de acesso, sistema de convites e isolamento total por empresa.
+O Sistema de Funcionários é um módulo completo para gerenciamento de colaboradores da empresa, oferecendo controle granular de acesso, sistema de convites por email e isolamento total por empresa.
 
 ## 🎯 Funcionalidades Principais
 
@@ -12,17 +12,27 @@ O Sistema de Funcionários é um módulo completo para gerenciamento de colabora
 - Controle de status (Ativo, Inativo, Afastado)
 - Soft delete para preservar histórico
 
-### ✅ **Sistema de Convites**
+### ✅ **Sistema de Convites por Email**
 - Criação de funcionário com acesso ao sistema
 - Geração automática de usuário
-- Envio de convites por email (preparado)
-- Senhas temporárias automáticas
+- **Envio automático de convites por email com Resend**
+- Senhas temporárias geradas automaticamente
+- Templates HTML profissionais e responsivos
+- Reenvio de convites com nova senha
 
 ### ✅ **Controle de Acesso**
 - Concessão/remoção de acesso ao sistema
+- **Notificações por email de mudanças de acesso**
 - Controle granular por funcionário
 - Integração com sistema de roles
 - Auditoria de mudanças
+
+### ✅ **Sistema de Email Integrado**
+- **Serviço completo de email com Resend**
+- Templates profissionais para todos os tipos de email
+- Fallback de texto para compatibilidade
+- Tratamento robusto de erros
+- Logs detalhados para debugging
 
 ### ✅ **Segurança Robusta**
 - Isolamento total por empresa
@@ -158,6 +168,24 @@ Content-Type: application/json
   "temporaryPassword": "temp123456"
 }
 ```
+**Resposta de Sucesso:**
+```json
+{
+  "employee": {
+    "id": "emp_789",
+    "name": "Pedro Costa",
+    "email": "pedro@empresa.com",
+    "hasSystemAccess": true,
+    "user": {
+      "id": "user_101",
+      "email": "pedro@empresa.com",
+      "temporaryPassword": "Abc123XyZ789"
+    }
+  },
+  "emailSent": true,
+  "message": "Funcionário criado e convite enviado por email"
+}
+```
 
 ### **🔄 Atualizar Funcionário**
 ```http
@@ -184,6 +212,14 @@ Content-Type: application/json
 ```http
 POST /api/employees/{id}/resend-invite
 ```
+**Resposta de Sucesso:**
+```json
+{
+  "message": "Convite reenviado com sucesso",
+  "emailSent": true,
+  "newTemporaryPassword": "NewPass456XyZ"
+}
+```
 
 ### **🗑️ Remover Funcionário**
 ```http
@@ -207,8 +243,9 @@ DELETE /api/employees/{id}
 
 **Ações Disponíveis:**
 - ✏️ **Editar** - Abrir formulário de edição
-- 🛡️ **Conceder Acesso** - Dar acesso ao sistema
-- 🚫 **Remover Acesso** - Retirar acesso ao sistema
+- 🛡️ **Conceder Acesso** - Dar acesso ao sistema + enviar email de notificação
+- 🚫 **Remover Acesso** - Retirar acesso ao sistema + enviar email de notificação
+- 📧 **Reenviar Convite** - Gerar nova senha e enviar por email (apenas para funcionários com acesso)
 - 🗑️ **Excluir** - Soft delete do funcionário
 
 ### **📝 Formulário de Funcionário**
@@ -289,17 +326,26 @@ const emailAvailable = await EmployeeSecurity.isEmailAvailableInCompany(
 2. Preenche dados do funcionário
 3. Marca "Conceder acesso ao sistema"
 4. Sistema cria funcionário + usuário
-5. Envia convite por email (futuro)
-6. Funcionário pode fazer login
+5. **Envia convite automático por email com credenciais**
+6. Funcionário recebe email com senha temporária
+7. Funcionário pode fazer login e alterar senha
 
 ### **🔐 Fluxo 3: Controle de Acesso**
 1. Admin visualiza lista de funcionários
 2. Clica no menu do funcionário
 3. Escolhe "Conceder Acesso" ou "Remover Acesso"
 4. Sistema cria/remove usuário automaticamente
-5. Funcionário ganha/perde acesso ao sistema
+5. **Envia email de notificação sobre mudança de acesso**
+6. Funcionário é informado sobre ganho/perda de acesso
 
-### **✏️ Fluxo 4: Edição**
+### **📧 Fluxo 4: Reenvio de Convite**
+1. Admin visualiza funcionário com acesso ao sistema
+2. Clica em "Reenviar Convite" no menu
+3. Sistema gera nova senha temporária
+4. **Envia novo email com credenciais atualizadas**
+5. Funcionário recebe novo convite com senha atualizada
+
+### **✏️ Fluxo 5: Edição**
 1. Admin clica em "Editar" na lista
 2. Formulário abre com dados preenchidos
 3. Altera informações necessárias
@@ -383,11 +429,13 @@ const handleCreate = async (data) => {
 
 ## 🚀 Próximos Passos
 
-### **📧 Sistema de Email**
-- Implementar envio real de convites
-- Templates profissionais de email
-- Notificações de mudanças de acesso
-- Lembretes de senha temporária
+### **📧 Sistema de Email** ✅ **IMPLEMENTADO**
+- ✅ Envio real de convites com Resend
+- ✅ Templates profissionais HTML e texto
+- ✅ Notificações de mudanças de acesso
+- ✅ Reenvio de convites com novas senhas
+- ✅ Tratamento robusto de erros
+- ✅ Logs detalhados para debugging
 
 ### **📊 Relatórios**
 - Dashboard de funcionários
@@ -417,8 +465,13 @@ src/
 ├── schemas/employee-schema.ts          # Validações Zod
 ├── store/employee-store.ts             # Estado global
 ├── services/employee-service.ts        # Chamadas API
+├── services/email-service.ts           # Serviço de email com Resend
 ├── lib/employee-security.ts            # Validações segurança
+├── lib/resend.ts                       # Configuração do Resend
 ├── app/api/employees/                  # API Routes
+│   ├── invite/route.ts                 # Endpoint de convites
+│   ├── [id]/system-access/route.ts     # Controle de acesso
+│   └── [id]/resend-invite/route.ts     # Reenvio de convites
 ├── app/admin/employees/                # Interface
 └── components/ui/                      # Componentes base
 ```
@@ -430,6 +483,8 @@ src/
 - **React Hook Form**: Formulários
 - **Radix UI**: Componentes base
 - **Lucide React**: Ícones
+- **Resend**: Serviço de email profissional
+- **Sonner**: Notificações toast
 
 ---
 
@@ -440,13 +495,34 @@ O Sistema de Funcionários está **100% funcional** e pronto para produção, of
 - ✅ **Segurança robusta** com isolamento por empresa
 - ✅ **Interface moderna** e intuitiva
 - ✅ **Funcionalidades avançadas** de controle de acesso
+- ✅ **Sistema completo de emails** com Resend
+- ✅ **Templates profissionais** HTML e texto
+- ✅ **Notificações automáticas** de mudanças
 - ✅ **Código limpo** e bem documentado
 - ✅ **Escalabilidade** para crescimento futuro
 
-**O sistema está pronto para ser usado pelos administradores!** 🚀
+**O sistema está pronto para ser usado pelos administradores com funcionalidades completas de email!** 🚀📧
 
 ---
 
-*Documentação gerada em: 11/10/2024*  
-*Versão do sistema: 1.0.0*  
-*Última atualização: Implementação completa do módulo*
+## 📧 Configuração de Email
+
+### **Variáveis de Ambiente Necessárias:**
+```env
+# Resend API Configuration
+RESEND_API_KEY="re_sua_api_key_aqui"
+RESEND_FROM_EMAIL="noreply@suaempresa.com"
+RESEND_REPLY_TO="suporte@suaempresa.com"
+```
+
+### **Como Configurar:**
+1. Acesse [resend.com](https://resend.com) e crie uma conta
+2. Gere uma API key no dashboard
+3. Configure as variáveis no arquivo `.env.local`
+4. Teste enviando um convite para funcionário
+
+---
+
+*Documentação atualizada em: 12/10/2025*  
+*Versão do sistema: 2.0.0*  
+*Última atualização: Sistema completo com emails integrados via Resend*

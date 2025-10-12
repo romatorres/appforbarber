@@ -42,13 +42,35 @@ export async function POST(
             );
         }
 
-        // TODO: Implementar envio de email
-        // Por enquanto, apenas log
-        console.log(`Convite reenviado para ${employee.email}`);
+        // Buscar nome da empresa para o email
+        const company = await prisma.company.findUnique({
+            where: { id: user.companyId! },
+            select: { name: true },
+        });
+
+        // Gerar nova senha temporária
+        const { generateTemporaryPassword, EmailService } = await import("@/services/email-service");
+        const tempPassword = generateTemporaryPassword();
+
+        // Reenviar email de convite
+        const emailResult = await EmailService.resendEmployeeInvite({
+            to: employee.email,
+            employeeName: employee.name,
+            companyName: company?.name || "Sua Empresa",
+            temporaryPassword: tempPassword,
+        });
+
+        if (!emailResult.success) {
+            return NextResponse.json(
+                { error: "Erro ao reenviar convite por email" },
+                { status: 500 }
+            );
+        }
 
         return NextResponse.json({
             success: true,
-            message: "Convite reenviado com sucesso"
+            message: "Convite reenviado com sucesso",
+            messageId: emailResult.messageId
         });
     } catch (error) {
         return handleApiError(error);

@@ -63,8 +63,23 @@ export async function PATCH(
 
             userId = newUser.id;
 
-            // TODO: Enviar email de convite
-            console.log(`Acesso concedido para ${employee.email}`);
+            // Buscar nome da empresa para o email
+            const company = await prisma.company.findUnique({
+                where: { id: user.companyId! },
+                select: { name: true },
+            });
+
+            // Enviar email de acesso concedido
+            const { EmailService } = await import("@/services/email-service");
+            const emailResult = await EmailService.sendSystemAccessGranted({
+                to: employee.email,
+                employeeName: employee.name,
+                companyName: company?.name || "Sua Empresa",
+            });
+
+            if (!emailResult.success) {
+                console.error("Erro ao enviar email de acesso concedido:", emailResult.error);
+            }
         } else if (!hasAccess && employee.userId) {
             // Remover usuário (soft delete)
             await prisma.user.update({
@@ -76,6 +91,24 @@ export async function PATCH(
             });
 
             userId = null;
+
+            // Buscar nome da empresa para o email
+            const company = await prisma.company.findUnique({
+                where: { id: user.companyId! },
+                select: { name: true },
+            });
+
+            // Enviar email de acesso removido
+            const { EmailService } = await import("@/services/email-service");
+            const emailResult = await EmailService.sendSystemAccessRevoked({
+                to: employee.email,
+                employeeName: employee.name,
+                companyName: company?.name || "Sua Empresa",
+            });
+
+            if (!emailResult.success) {
+                console.error("Erro ao enviar email de acesso removido:", emailResult.error);
+            }
         }
 
         // Atualizar funcionário

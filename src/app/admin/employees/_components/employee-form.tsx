@@ -127,9 +127,14 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         await updateEmployee(selectedEmployee.id, updateData);
       } else {
         // Criar novo funcionário
-        if (sendInvite && "sendInvite" in data) {
+        if (sendInvite) {
           // Criar com convite
-          await inviteEmployee(data as InviteEmployeeData);
+          const inviteData: InviteEmployeeData = {
+            ...data,
+            sendInvite: true,
+            hasSystemAccess: true,
+          };
+          await inviteEmployee(inviteData);
         } else {
           // Criar simples
           const createData: CreateEmployeeData = {
@@ -303,7 +308,7 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         </div>
 
         {/* Acesso ao Sistema - apenas para criação */}
-        {isEdit && (
+        {!isEdit && (
           <>
             <Separator />
             <div className="space-y-4">

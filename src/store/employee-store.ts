@@ -109,8 +109,46 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
   },
 
   inviteEmployee: async (data) => {
-    // Por enquanto, usar create normal até implementar API de convite
-    return get().createEmployee(data);
+    set({ loading: true, error: null });
+    try {
+      // Usar API específica de convite
+      const result = await EmployeeService.invite(data);
+
+      const employeeWithUser: EmployeeWithUser = {
+        ...result,
+        user: result.userId ? {
+          id: result.userId,
+          name: result.name,
+          email: result.email,
+          role: "EMPLOYEE",
+          emailVerified: false,
+        } : null,
+      };
+
+      set((state) => ({
+        employees: [...state.employees, employeeWithUser],
+        loading: false,
+        error: null,
+      }));
+
+      // Usar mensagem personalizada da API se disponível
+      const successMessage = result.message || "Funcionário criado e convite enviado por email!";
+      toast.success(successMessage);
+      return result;
+    } catch (error: any) {
+      // Tentar extrair mensagem amigável do erro
+      let errorMessage = "Erro ao criar funcionário e enviar convite";
+
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.error) {
+        errorMessage = error.error;
+      }
+
+      set({ error: errorMessage, loading: false });
+      toast.error(errorMessage);
+      return null;
+    }
   },
 
   updateEmployee: async (id, data) => {

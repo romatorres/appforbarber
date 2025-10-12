@@ -46,6 +46,13 @@ export const EmployeeService = {
   },
 
   /**
+   * Alias para createWithInvite (compatibilidade com store)
+   */
+  async invite(data: InviteEmployeeData): Promise<EmployeeData> {
+    return this.createWithInvite(data);
+  },
+
+  /**
    * Atualizar funcionário
    */
   async update(id: string, data: UpdateEmployeeData): Promise<EmployeeData> {
