@@ -134,7 +134,7 @@ export default function ChangePasswordForm({
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {isTemporaryPassword ? (
@@ -276,7 +276,7 @@ export default function ChangePasswordForm({
                     <div className="relative">
                       <Input
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Digite novamente sua nova senha"
+                        placeholder="Confirme sua nova senha"
                         {...field}
                       />
                       <Button
@@ -302,13 +302,13 @@ export default function ChangePasswordForm({
             />
 
             {/* Botões */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex md:flex-row flex-col gap-3 pt-4 md:justify-end justify-center">
               {onCancel && !isTemporaryPassword && (
                 <Button type="button" variant="outline" onClick={onCancel}>
                   Cancelar
                 </Button>
               )}
-              <Button type="submit" disabled={loading} className="flex-1">
+              <Button type="submit" disabled={loading}>
                 {loading ? "Alterando..." : "Alterar Senha"}
               </Button>
             </div>
