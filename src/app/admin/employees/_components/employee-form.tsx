@@ -117,9 +117,10 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
       } else {
         // Criar novo funcionário (sempre com convite)
         const inviteData: InviteEmployeeData = {
-          ...data,
+          ...(data as InviteEmployeeData),
           sendInvite: true,
           hasSystemAccess: true,
+          startDate: new Date(),
         };
         await inviteEmployee(inviteData);
       }
