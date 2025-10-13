@@ -158,7 +158,7 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
             )}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4">
             <FormField
               control={form.control}
               name="email"
@@ -281,14 +281,14 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         {!isEdit && (
           <>
             <Separator />
-            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center gap-2 text-blue-800">
+            <div className="p-3 bg-gray-1 rounded-lg border border-gray-2">
+              <div className="flex items-center gap-2 text-gray-5">
                 <Shield className="h-4 w-4" />
                 <span className="text-sm font-medium">
                   Acesso Automático ao Sistema
                 </span>
               </div>
-              <p className="text-xs text-blue-700 mt-1">
+              <p className="text-xs text-gray-4 mt-1">
                 Todo funcionário receberá automaticamente acesso ao sistema com
                 um convite por email contendo suas credenciais de login.
               </p>

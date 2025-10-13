@@ -85,13 +85,14 @@ export default function EmployeeList() {
     selectEmployee(employee);
   };
 
-
-
   const handleResendInvite = async (employee: EmployeeWithUser) => {
     try {
-      const response = await fetch(`/api/employees/${employee.id}/resend-invite`, {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `/api/employees/${employee.id}/resend-invite`,
+        {
+          method: "POST",
+        }
+      );
 
       if (response.ok) {
         toast.success("Convite reenviado com sucesso!");
@@ -203,12 +204,14 @@ export default function EmployeeList() {
                         <DropdownMenuItem onClick={() => handleEdit(employee)}>
                           Editar
                         </DropdownMenuItem>
-                        
-                        <DropdownMenuItem onClick={() => handleResendInvite(employee)}>
-                          <Mail className="h-4 w-4 mr-2" />
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                          onClick={() => handleResendInvite(employee)}
+                        >
                           Reenviar Convite
                         </DropdownMenuItem>
-                        
+
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"

@@ -18,7 +18,6 @@ export default function TemporaryPasswordGuard({
   >(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  router.push("/login");
 
   useEffect(() => {
     checkTemporaryPassword();
