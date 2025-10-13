@@ -115,21 +115,22 @@ model Branch {
 
 // ============= USUÁRIOS E AUTENTICAÇÃO =============
 model User {
-  id              String           @id @default(cuid())
-  companyId       String?
-  company         Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  name            String
-  email           String           @unique
-  emailVerified   Boolean          @default(false)
-  image           String?
-  role            Role             @default(USER)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
-  sessions        Session[]
-  accounts        Account[]
-  employee        Employee?
-  appointments    Appointment[]
-  cashierClosings CashierClosing[]
+  id                  String           @id @default(cuid())
+  companyId           String?
+  company             Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name                String
+  email               String           @unique
+  emailVerified       Boolean          @default(false)
+  image               String?
+  role                Role             @default(USER)
+  isTemporaryPassword Boolean          @default(false) // Flag para forçar mudança de senha
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @default(now()) @updatedAt
+  sessions            Session[]
+  accounts            Account[]
+  employee            Employee?
+  appointments        Appointment[]
+  cashierClosings     CashierClosing[]
 
   @@index([companyId])
   @@map("user")

@@ -38,8 +38,8 @@ export const EmployeeSchema = z.object({
     .max(1000, "Biografia muito longa (máx. 1000 caracteres)")
     .optional(),
 
-  // Controle de acesso
-  hasSystemAccess: z.boolean().default(false),
+  // Controle de acesso (todos os funcionários têm acesso)
+  hasSystemAccess: z.boolean().default(true),
 
   // Status e datas
   status: EmployeeStatusEnum.default("ACTIVE"),
@@ -57,11 +57,12 @@ export const UpdateEmployeeSchema = CreateEmployeeSchema.partial();
 
 // Schema para convite (quando funcionário terá acesso ao sistema)
 export const InviteEmployeeSchema = CreateEmployeeSchema.extend({
-  sendInvite: z.boolean().default(false),
+  sendInvite: z.boolean().default(true),
   temporaryPassword: z
     .string()
     .min(8, "Senha deve ter pelo menos 8 caracteres")
-    .optional(),
+    .optional()
+    .or(z.literal("")), // Permitir string vazia
 });
 
 // Tipos TypeScript

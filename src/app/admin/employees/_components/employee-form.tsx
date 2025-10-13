@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  CreateEmployeeSchema,
   UpdateEmployeeSchema,
   InviteEmployeeSchema,
   CreateEmployeeData,
@@ -15,8 +14,6 @@ import { useEmployeeStore } from "@/store/employee-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -33,7 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Shield, Mail } from "lucide-react";
+import { Shield } from "lucide-react";
 
 interface EmployeeFormProps {
   onSuccess?: () => void;
@@ -46,21 +43,15 @@ type EmployeeFormData =
   | InviteEmployeeData;
 
 export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
-  const {
-    createEmployee,
-    inviteEmployee,
-    selectedEmployee,
-    updateEmployee,
-    selectEmployee,
-  } = useEmployeeStore();
+  const { inviteEmployee, selectedEmployee, updateEmployee, selectEmployee } =
+    useEmployeeStore();
 
-  const [sendInvite, setSendInvite] = useState(false);
   const isEdit = !!selectedEmployee;
 
   // Escolher schema baseado no modo
   const getSchema = () => {
     if (isEdit) return UpdateEmployeeSchema;
-    return sendInvite ? InviteEmployeeSchema : CreateEmployeeSchema;
+    return InviteEmployeeSchema; // Sempre usar schema de convite para criação
   };
 
   const form = useForm({
@@ -73,11 +64,9 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
       commissionRate: 50,
       specialties: "",
       status: "ACTIVE" as const,
-      hasSystemAccess: false,
-      ...(sendInvite && {
-        sendInvite: false,
-        temporaryPassword: "",
-      }),
+      hasSystemAccess: true, // Sempre true por padrão
+      sendInvite: true, // Sempre enviar convite
+      temporaryPassword: "",
     },
   });
 
@@ -94,7 +83,6 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         status: selectedEmployee.status || "ACTIVE",
         hasSystemAccess: selectedEmployee.hasSystemAccess || false,
       });
-      setSendInvite(selectedEmployee.hasSystemAccess || false);
     } else {
       form.reset({
         name: "",
@@ -104,9 +92,10 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         commissionRate: 30,
         specialties: "",
         status: "ACTIVE",
-        hasSystemAccess: false,
+        hasSystemAccess: true,
+        sendInvite: true,
+        temporaryPassword: "",
       });
-      setSendInvite(false);
     }
   }, [selectedEmployee, form]);
 
@@ -126,36 +115,18 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
         };
         await updateEmployee(selectedEmployee.id, updateData);
       } else {
-        // Criar novo funcionário
-        if (sendInvite) {
-          // Criar com convite
-          const inviteData: InviteEmployeeData = {
-            ...data,
-            sendInvite: true,
-            hasSystemAccess: true,
-          };
-          await inviteEmployee(inviteData);
-        } else {
-          // Criar simples
-          const createData: CreateEmployeeData = {
-            name: data.name || "",
-            email: data.email || "",
-            phoneNumber: data.phoneNumber,
-            bio: data.bio,
-            commissionRate: data.commissionRate || 30,
-            specialties: data.specialties,
-            status: data.status || "ACTIVE",
-            hasSystemAccess: false,
-            startDate: new Date(),
-          };
-          await createEmployee(createData);
-        }
+        // Criar novo funcionário (sempre com convite)
+        const inviteData: InviteEmployeeData = {
+          ...data,
+          sendInvite: true,
+          hasSystemAccess: true,
+        };
+        await inviteEmployee(inviteData);
       }
 
       // Limpar formulário e fechar
       form.reset();
       selectEmployee(null);
-      setSendInvite(false);
       onSuccess?.();
     } catch (error) {
       console.error("Erro ao salvar funcionário:", error);
@@ -165,7 +136,6 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
   const handleCancel = () => {
     form.reset();
     selectEmployee(null);
-    setSendInvite(false);
     onSuccess?.();
   };
 
@@ -307,52 +277,21 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
           />
         </div>
 
-        {/* Acesso ao Sistema - apenas para criação */}
+        {/* Informação sobre acesso automático */}
         {!isEdit && (
           <>
             <Separator />
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                <h3 className="text-md font-medium">Acesso ao Sistema</h3>
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2 text-blue-800">
+                <Shield className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  Acesso Automático ao Sistema
+                </span>
               </div>
-
-              <div className="flex items-start space-x-2">
-                <Checkbox
-                  id="sendInvite"
-                  checked={sendInvite}
-                  onCheckedChange={(checked: boolean) => {
-                    setSendInvite(checked);
-                    form.setValue("hasSystemAccess", checked);
-                  }}
-                />
-                <div className="grid gap-1.5 leading-none">
-                  <Label
-                    htmlFor="sendInvite"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Conceder acesso ao sistema
-                  </Label>
-                  <p className="text-xs text-gray-3">
-                    O funcionário poderá fazer login e usar o sistema
-                  </p>
-                </div>
-              </div>
-
-              {sendInvite && (
-                <div className="p-3 bg-gray-1 rounded-lg border border-gray-2">
-                  <div className="flex items-center gap-2 text-foreground">
-                    <Mail className="h-4 w-4" />
-                    <span className="text-sm font-medium">
-                      Convite por Email
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-4 mt-1">
-                    Um convite será enviado por email com as credenciais de
-                    acesso. Uma senha temporária será gerada automaticamente.
-                  </p>
-                </div>
-              )}
+              <p className="text-xs text-blue-700 mt-1">
+                Todo funcionário receberá automaticamente acesso ao sistema com
+                um convite por email contendo suas credenciais de login.
+              </p>
             </div>
           </>
         )}
@@ -366,10 +305,8 @@ export default function EmployeeForm({ onSuccess }: EmployeeFormProps) {
             {form.formState.isSubmitting
               ? "Salvando..."
               : isEdit
-              ? "Atualizar Funcionário"
-              : sendInvite
-              ? "Criar e Enviar Convite"
-              : "Criar Funcionário"}
+                ? "Atualizar Funcionário"
+                : "Criar Funcionário"}
           </Button>
         </div>
       </form>

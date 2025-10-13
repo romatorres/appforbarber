@@ -62,15 +62,7 @@ export const EmployeeService = {
     });
   },
 
-  /**
-   * Alternar acesso ao sistema (criar/remover usuário)
-   */
-  async toggleSystemAccess(id: string, hasAccess: boolean): Promise<EmployeeData> {
-    return apiClient(`/api/employees/${id}/system-access`, {
-      method: "PATCH",
-      body: JSON.stringify({ hasAccess }),
-    });
-  },
+
 
   /**
    * Reenviar convite para funcionário

@@ -25,7 +25,7 @@ interface EmployeeStore {
   inviteEmployee: (data: InviteEmployeeData) => Promise<EmployeeData | null>;
   updateEmployee: (id: string, data: UpdateEmployeeData) => Promise<EmployeeData | null>;
   deleteEmployee: (id: string) => Promise<void>;
-  toggleSystemAccess: (id: string, hasAccess: boolean) => Promise<void>;
+
   selectEmployee: (employee: EmployeeWithUser | null) => void;
   clearError: () => void;
 
@@ -175,10 +175,7 @@ export const useEmployeeStore = create<EmployeeStore>((set, get) => ({
     }
   },
 
-  toggleSystemAccess: async (id, hasAccess) => {
-    // Por enquanto, usar update normal até implementar API específica
-    await get().updateEmployee(id, { hasSystemAccess: hasAccess });
-  },
+
 
   deleteEmployee: async (id) => {
     set({ loading: true, error: null });

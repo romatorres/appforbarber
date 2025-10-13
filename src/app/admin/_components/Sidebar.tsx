@@ -19,6 +19,7 @@ import {
   ChevronDown,
   CircleDollarSign,
   Building2,
+  Lock,
 } from "lucide-react";
 
 import {
@@ -72,6 +73,7 @@ const configItems = [
         url: "/admin/settings/payments",
         icon: CircleDollarSign,
       },
+      { title: "Alterar Senha", url: "/admin/settings/password", icon: Lock },
     ],
   },
 ];

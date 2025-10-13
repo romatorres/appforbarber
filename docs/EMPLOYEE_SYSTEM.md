@@ -13,19 +13,18 @@ O Sistema de Funcionários é um módulo completo para gerenciamento de colabora
 - Soft delete para preservar histórico
 
 ### ✅ **Sistema de Convites por Email**
-- Criação de funcionário com acesso ao sistema
-- Geração automática de usuário
+- **Todos os funcionários recebem acesso automático ao sistema**
+- Geração automática de usuário para cada funcionário
 - **Envio automático de convites por email com Resend**
 - Senhas temporárias geradas automaticamente
 - Templates HTML profissionais e responsivos
 - Reenvio de convites com nova senha
 
-### ✅ **Controle de Acesso**
-- Concessão/remoção de acesso ao sistema
-- **Notificações por email de mudanças de acesso**
-- Controle granular por funcionário
-- Integração com sistema de roles
-- Auditoria de mudanças
+### ✅ **Controle de Permissões**
+- **Acesso automático** para todos os funcionários
+- **Controle de permissões** baseado em roles (EMPLOYEE)
+- Integração com sistema de autenticação
+- Mudança obrigatória de senha temporária
 
 ### ✅ **Sistema de Email Integrado**
 - **Serviço completo de email com Resend**
@@ -65,8 +64,8 @@ model Employee {
   startDate       DateTime @default(now())
   status          String   @default("ACTIVE")
   
-  // Controle de acesso
-  hasSystemAccess Boolean  @default(false)
+  // Controle de acesso (todos têm acesso)
+  hasSystemAccess Boolean  @default(true)
   
   // Timestamps
   createdAt       DateTime @default(now())
@@ -93,7 +92,7 @@ export const EmployeeSchema = z.object({
   commissionRate: z.number().min(0).max(100).default(50.0),
   specialties: z.string().optional(),
   bio: z.string().max(1000).optional(),
-  hasSystemAccess: z.boolean().default(false),
+  hasSystemAccess: z.boolean().default(true),
   status: z.enum(["ACTIVE", "INACTIVE", "ON_LEAVE"]).default("ACTIVE"),
   startDate: z.coerce.date().default(() => new Date()),
 });
@@ -198,15 +197,7 @@ Content-Type: application/json
 }
 ```
 
-### **🔐 Controlar Acesso ao Sistema**
-```http
-PATCH /api/employees/{id}/system-access
-Content-Type: application/json
 
-{
-  "hasAccess": true
-}
-```
 
 ### **📨 Reenviar Convite**
 ```http
@@ -243,10 +234,8 @@ DELETE /api/employees/{id}
 
 **Ações Disponíveis:**
 - ✏️ **Editar** - Abrir formulário de edição
-- 🛡️ **Conceder Acesso** - Dar acesso ao sistema + enviar email de notificação
-- 🚫 **Remover Acesso** - Retirar acesso ao sistema + enviar email de notificação
-- 📧 **Reenviar Convite** - Gerar nova senha e enviar por email (apenas para funcionários com acesso)
-- 🗑️ **Excluir** - Soft delete do funcionário
+- � **Reencviar Convite** - Gerar nova senha temporária e enviar por email
+- �️ **Exocluir** - Soft delete do funcionário
 
 ### **📝 Formulário de Funcionário**
 
@@ -262,10 +251,10 @@ DELETE /api/employees/{id}
    - Status (Ativo, Inativo, Afastado)
    - Especialidades (texto livre)
 
-3. **🔐 Acesso ao Sistema** *(apenas criação)*
-   - Checkbox para conceder acesso
-   - Informações sobre convite por email
-   - Geração automática de senha
+3. **🔐 Acesso Automático ao Sistema**
+   - Todos os funcionários recebem acesso automaticamente
+   - Convite por email enviado automaticamente
+   - Geração automática de senha temporária
 
 **Validações em Tempo Real:**
 - Email único por empresa
@@ -321,31 +310,22 @@ const emailAvailable = await EmployeeSecurity.isEmailAvailableInCompany(
 4. Salva sem marcar "Conceder acesso"
 5. Funcionário criado apenas como registro
 
-### **📧 Fluxo 2: Cadastro com Convite**
+### **📧 Fluxo 2: Cadastro Automático com Convite**
 1. Admin acessa formulário
 2. Preenche dados do funcionário
-3. Marca "Conceder acesso ao sistema"
-4. Sistema cria funcionário + usuário
-5. **Envia convite automático por email com credenciais**
-6. Funcionário recebe email com senha temporária
-7. Funcionário pode fazer login e alterar senha
+3. Sistema **automaticamente** cria funcionário + usuário
+4. **Envia convite automático por email com credenciais**
+5. Funcionário recebe email com senha temporária
+6. Funcionário faz login e **deve alterar senha obrigatoriamente**
 
-### **🔐 Fluxo 3: Controle de Acesso**
+### **📧 Fluxo 3: Reenvio de Convite**
 1. Admin visualiza lista de funcionários
-2. Clica no menu do funcionário
-3. Escolhe "Conceder Acesso" ou "Remover Acesso"
-4. Sistema cria/remove usuário automaticamente
-5. **Envia email de notificação sobre mudança de acesso**
-6. Funcionário é informado sobre ganho/perda de acesso
-
-### **📧 Fluxo 4: Reenvio de Convite**
-1. Admin visualiza funcionário com acesso ao sistema
 2. Clica em "Reenviar Convite" no menu
 3. Sistema gera nova senha temporária
 4. **Envia novo email com credenciais atualizadas**
 5. Funcionário recebe novo convite com senha atualizada
 
-### **✏️ Fluxo 5: Edição**
+### **✏️ Fluxo 4: Edição**
 1. Admin clica em "Editar" na lista
 2. Formulário abre com dados preenchidos
 3. Altera informações necessárias
@@ -370,7 +350,7 @@ interface EmployeeStore {
   inviteEmployee: (data: InviteEmployeeData) => Promise<EmployeeData | null>;
   updateEmployee: (id: string, data: UpdateEmployeeData) => Promise<EmployeeData | null>;
   deleteEmployee: (id: string) => Promise<void>;
-  toggleSystemAccess: (id: string, hasAccess: boolean) => Promise<void>;
+
 }
 ```
 
@@ -381,8 +361,7 @@ const {
   employees, 
   loading, 
   createEmployee, 
-  updateEmployee,
-  toggleSystemAccess 
+  updateEmployee
 } = useEmployeeStore();
 
 // Carregar funcionários
@@ -412,10 +391,10 @@ const handleCreate = async (data) => {
 - [ ] Permissões são validadas em todas as operações
 
 **Funcionalidades:**
-- [ ] Cadastro simples funciona
-- [ ] Cadastro com convite cria usuário
+- [ ] Cadastro automático com convite funciona
+- [ ] Usuário é criado automaticamente
 - [ ] Edição atualiza dados corretamente
-- [ ] Controle de acesso funciona
+- [ ] Reenvio de convites funciona
 - [ ] Soft delete preserva dados
 
 **Interface:**
@@ -470,7 +449,6 @@ src/
 ├── lib/resend.ts                       # Configuração do Resend
 ├── app/api/employees/                  # API Routes
 │   ├── invite/route.ts                 # Endpoint de convites
-│   ├── [id]/system-access/route.ts     # Controle de acesso
 │   └── [id]/resend-invite/route.ts     # Reenvio de convites
 ├── app/admin/employees/                # Interface
 └── components/ui/                      # Componentes base
@@ -523,6 +501,6 @@ RESEND_REPLY_TO="suporte@suaempresa.com"
 
 ---
 
-*Documentação atualizada em: 12/10/2025*  
-*Versão do sistema: 2.0.0*  
-*Última atualização: Sistema completo com emails integrados via Resend*
+*Documentação atualizada em: 13/10/2025*  
+*Versão do sistema: 3.0.0*  
+*Última atualização: Sistema simplificado - todos os funcionários têm acesso automático*

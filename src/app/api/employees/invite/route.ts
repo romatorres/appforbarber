@@ -64,17 +64,36 @@ export async function POST(req: Request) {
             }
 
             // Gerar senha temporária
-            const { generateTemporaryPassword, EmailService } = await import("@/services/email-service");
-            const tempPassword = validatedData.temporaryPassword || generateTemporaryPassword();
+            const { EmailService } = await import("@/services/email-service");
+            const { PasswordUtils } = await import("@/lib/password-utils");
+            const { BetterAuthUtils } = await import("@/lib/better-auth-utils");
 
-            const newUser = await prisma.user.create({
+            const tempPassword = validatedData.temporaryPassword || PasswordUtils.generateTemporaryPassword();
+
+            // Usar Better Auth para criar usuário com senha
+            const authResult = await BetterAuthUtils.createUserWithPassword({
+                name: validatedData.name,
+                email: validatedData.email,
+                password: tempPassword,
+            });
+
+            if (!authResult.success || !authResult.user) {
+                return NextResponse.json(
+                    {
+                        error: "Erro ao criar conta de usuário",
+                        message: authResult.error || "Não foi possível criar a conta de acesso ao sistema."
+                    },
+                    { status: 500 }
+                );
+            }
+
+            // Atualizar dados específicos do usuário
+            const newUser = await prisma.user.update({
+                where: { id: authResult.user.id },
                 data: {
-                    name: validatedData.name,
-                    email: validatedData.email,
                     role: Role.EMPLOYEE,
                     companyId: user.companyId!,
-                    emailVerified: false,
-                    // TODO: Adicionar hash da senha quando implementar autenticação completa
+                    isTemporaryPassword: true, // Flag para forçar mudança de senha
                 },
             });
 

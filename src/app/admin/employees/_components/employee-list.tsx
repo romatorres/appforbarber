@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, EllipsisVertical, User, Shield, ShieldOff } from "lucide-react";
+import { Mail, Phone, EllipsisVertical, User, Shield } from "lucide-react";
 import { useEmployeeStore } from "@/store/employee-store";
 import type { EmployeeWithUser } from "@/schemas/employee-schema";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -60,7 +60,6 @@ export default function EmployeeList() {
     selectedEmployee,
     deleteEmployee,
     selectEmployee,
-    toggleSystemAccess,
   } = useEmployeeStore();
   const [employeeToDelete, setEmployeeToDelete] =
     useState<EmployeeWithUser | null>(null);
@@ -86,13 +85,7 @@ export default function EmployeeList() {
     selectEmployee(employee);
   };
 
-  const handleToggleAccess = async (employee: EmployeeWithUser) => {
-    try {
-      await toggleSystemAccess(employee.id, !employee.hasSystemAccess);
-    } catch (error) {
-      console.error("Erro ao alterar acesso:", error);
-    }
-  };
+
 
   const handleResendInvite = async (employee: EmployeeWithUser) => {
     try {
@@ -211,26 +204,10 @@ export default function EmployeeList() {
                           Editar
                         </DropdownMenuItem>
                         
-                        <DropdownMenuItem onClick={() => handleToggleAccess(employee)}>
-                          {employee.hasSystemAccess ? (
-                            <>
-                              <ShieldOff className="h-4 w-4 mr-2" />
-                              Remover Acesso
-                            </>
-                          ) : (
-                            <>
-                              <Shield className="h-4 w-4 mr-2" />
-                              Conceder Acesso
-                            </>
-                          )}
+                        <DropdownMenuItem onClick={() => handleResendInvite(employee)}>
+                          <Mail className="h-4 w-4 mr-2" />
+                          Reenviar Convite
                         </DropdownMenuItem>
-                        
-                        {employee.hasSystemAccess && (
-                          <DropdownMenuItem onClick={() => handleResendInvite(employee)}>
-                            <Mail className="h-4 w-4 mr-2" />
-                            Reenviar Convite
-                          </DropdownMenuItem>
-                        )}
                         
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
